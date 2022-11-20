@@ -1,17 +1,37 @@
 
-using Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Persistence.Daos;
 
-namespace Persistence;
-public class SeedData
+namespace Persistence
 {
-    public static async Task Seed(DataContext context)
+    public class DatabaseMigration
     {
-        if (await context.Activities.AnyAsync()) return;
-
-        var activities = new List<Activity>
+        public static async Task InitializeDatabase(IServiceProvider serviceProvider)
+        {
+            using var scope = serviceProvider.CreateScope();
+            try
             {
-                new Activity
+                using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                await context.Database.MigrateAsync();
+                await SeedInitialData(context);
+            }
+            catch (Exception ex)
+            {
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseMigration>>();
+                logger.LogError(ex, "An error occured during migrate database");
+                throw;
+            }
+        }
+
+        private static async Task SeedInitialData(DataContext context)
+        {
+            if (await context.Activities.AnyAsync()) return;
+
+            var activities = new List<ActivityDao>
+            {
+                new ActivityDao
                 {
                     Title = "Past Activity 1",
                     Date = DateTime.Now.AddMonths(-2),
@@ -20,7 +40,7 @@ public class SeedData
                     City = "London",
                     Venue = "Pub",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Past Activity 2",
                     Date = DateTime.Now.AddMonths(-1),
@@ -29,7 +49,7 @@ public class SeedData
                     City = "Paris",
                     Venue = "Louvre",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 1",
                     Date = DateTime.Now.AddMonths(1),
@@ -38,7 +58,7 @@ public class SeedData
                     City = "London",
                     Venue = "Natural History Museum",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 2",
                     Date = DateTime.Now.AddMonths(2),
@@ -47,7 +67,7 @@ public class SeedData
                     City = "London",
                     Venue = "O2 Arena",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 3",
                     Date = DateTime.Now.AddMonths(3),
@@ -56,7 +76,7 @@ public class SeedData
                     City = "London",
                     Venue = "Another pub",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 4",
                     Date = DateTime.Now.AddMonths(4),
@@ -65,7 +85,7 @@ public class SeedData
                     City = "London",
                     Venue = "Yet another pub",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 5",
                     Date = DateTime.Now.AddMonths(5),
@@ -74,7 +94,7 @@ public class SeedData
                     City = "London",
                     Venue = "Just another pub",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 6",
                     Date = DateTime.Now.AddMonths(6),
@@ -83,7 +103,7 @@ public class SeedData
                     City = "London",
                     Venue = "Roundhouse Camden",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 7",
                     Date = DateTime.Now.AddMonths(7),
@@ -92,7 +112,7 @@ public class SeedData
                     City = "London",
                     Venue = "Somewhere on the Thames",
                 },
-                new Activity
+                new ActivityDao
                 {
                     Title = "Future Activity 8",
                     Date = DateTime.Now.AddMonths(8),
@@ -103,7 +123,8 @@ public class SeedData
                 }
             };
 
-        await context.Activities.AddRangeAsync(activities);
-        await context.SaveChangesAsync();
+            await context.Activities.AddRangeAsync(activities);
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -1,6 +1,10 @@
 using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
 using Persistence;
+using Application;
+using FluentValidation;
+using API.Utils;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API
 {
@@ -16,14 +20,26 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            // cân nhắc bỏ cấu hình này và build lại phần thông báo lỗi
+            // về định dạng giống như của fluent validation trả về
+            services.Configure<ApiBehaviorOptions>(options =>
+                {
+                    options.SuppressModelStateInvalidFilter = true;
+                });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
             });
-            services.AddDbContext<DataContext>(options =>
-            {
-                options.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
-            });
+
+            services.AddRepositoryServices(_configuration, "DefaultConnection");
+            services.AddApplicationServices();
+
+            services
+                .AddFluentValidationAutoValidation()
+                .AddValidatorsFromAssemblyContaining<Application.Core.Result>();
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +55,7 @@ namespace API
             {
                 app.UseHttpsRedirection();
             }
+            app.UseCustomExceptionHandler();
 
             app.UseRouting();
 

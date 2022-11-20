@@ -1,15 +1,16 @@
+using API.Utils;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[ModelStateValidationActionFilter]
 public abstract class BaseApiController : ControllerBase
 {
-    protected readonly ILogger<BaseApiController> _logger;
+    private IMediator _mediator;
 
-    public BaseApiController(ILogger<BaseApiController> logger)
-    {
-        _logger = logger;
-    }
+    protected IMediator Mediator
+        => _mediator ??= HttpContext.RequestServices.GetService<IMediator>();
 }
