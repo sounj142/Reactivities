@@ -42,11 +42,11 @@ public class ExceptionHandlerMiddleware
             ),
             NotFoundException notFoundException => (
                 Code: (int)HttpStatusCode.NotFound,
-                Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject("NOT_FOUND", notFoundException.Message))
+                Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject(notFoundException.ErrorCode, notFoundException.Message))
             ),
             FrameworkException frameworkException => (
                 Code: (int)HttpStatusCode.BadRequest,
-                Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject("GENERIC_ERROR", frameworkException.Message))
+                Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject(frameworkException.ErrorCode, frameworkException.Message))
             ),
             _ => ((Func<(int Code, string Content)>)(() =>
             {

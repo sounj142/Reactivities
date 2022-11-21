@@ -13,10 +13,10 @@ public class ActivitiesController : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActivityDto> Get(Guid id)
+    public async Task<ActionResult<ActivityDto>> Get(Guid id)
     {
         var activity = await Mediator.Send(new GetActivityByIdQuery { Id = id });
-        return activity;
+        return new JsonResult(activity);
     }
 
     [HttpPost]

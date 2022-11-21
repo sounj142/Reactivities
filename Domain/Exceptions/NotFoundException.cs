@@ -2,11 +2,11 @@ namespace Domain.Exceptions;
 
 public class NotFoundException : FrameworkException
 {
-    public NotFoundException(string message) : base(message)
+    public NotFoundException(string errorCode, string message) : base(errorCode, message)
     {
     }
 
-    public NotFoundException(string message, Exception innerException) : base(message, innerException)
+    public NotFoundException(string errorCode, string message, Exception innerException) : base(errorCode, message, innerException)
     {
     }
 }

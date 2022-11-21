@@ -7,12 +7,12 @@ public class ValidationException : FrameworkException
 {
     public IDictionary<string, string[]> Failures { get; }
 
-    public ValidationException() : base("One or more validation failures have occurred.")
+    public ValidationException(string errorCode) : base(errorCode, "One or more validation failures have occurred.")
     {
         Failures = new Dictionary<string, string[]>();
     }
 
-    public ValidationException(ModelStateDictionary modelState) : this()
+    public ValidationException(string errorCode, ModelStateDictionary modelState) : this(errorCode)
     {
         Failures = modelState.ToDictionary(
             pair => pair.Key,

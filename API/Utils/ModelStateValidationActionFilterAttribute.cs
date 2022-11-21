@@ -8,7 +8,8 @@ public class ModelStateValidationActionFilterAttribute : ActionFilterAttribute
     {
         var modelState = context.ModelState;
         if (!modelState.IsValid)
-            throw new ValidationException(modelState);
+            throw new ValidationException(ErrorCode.VALIDATION_ERROR, modelState);
+
         base.OnActionExecuting(context);
     }
 }

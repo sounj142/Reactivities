@@ -47,7 +47,7 @@ public class ActivityRepository : IActivityRepository
             .FindAsync(activity.Id);
         if (activityDao == null)
         {
-            throw new NotFoundException($"Update rejected. Activity '{activity.Id}' was not found.");
+            throw new NotFoundException(ErrorCode.REPO0001, $"Update rejected. Activity '{activity.Id}' was not found.");
         }
 
         _mapper.Map(activity, activityDao);
@@ -59,7 +59,7 @@ public class ActivityRepository : IActivityRepository
         var activityDao = await _dbContext.Activities.FindAsync(id);
         if (activityDao == null)
         {
-            throw new NotFoundException($"Delete rejected. Activity '{id}' was not found.");
+            throw new NotFoundException(ErrorCode.REPO0002, $"Delete rejected. Activity '{id}' was not found.");
         }
 
         _dbContext.Activities.Remove(activityDao);
