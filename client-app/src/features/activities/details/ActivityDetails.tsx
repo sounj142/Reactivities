@@ -1,13 +1,18 @@
 import { Button, Card, Image } from 'semantic-ui-react';
-import Activity from '../../../models/activity';
+import Activity from '../../../models/Activity';
 import { getImageUrl } from '../../../utils/common';
 
 interface Props {
   activity: Activity;
-  changeActivity: (activity: Activity | undefined) => void;
+  changeActivity: (activity?: Activity) => void;
+  handleFormOpen: (activity?: Activity) => void;
 }
 
-export default function ActivityDetails({ activity, changeActivity }: Props) {
+export default function ActivityDetails({
+  activity,
+  changeActivity,
+  handleFormOpen,
+}: Props) {
   return (
     <Card fluid>
       <Image src={getImageUrl(activity.category)} />
@@ -20,7 +25,12 @@ export default function ActivityDetails({ activity, changeActivity }: Props) {
       </Card.Content>
       <Card.Content extra>
         <Button.Group widths='2'>
-          <Button basic color='blue' content='Edit' />
+          <Button
+            basic
+            color='blue'
+            content='Edit'
+            onClick={() => handleFormOpen(activity)}
+          />
           <Button
             basic
             color='grey'

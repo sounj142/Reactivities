@@ -1,12 +1,30 @@
+import axios from 'axios';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
-import Activity from '../../../models/activity';
+import Activity from '../../../models/Activity';
 
 interface Props {
   activities: Activity[];
-  changeActivity: (activity: Activity | undefined) => void;
+  changeActivity: (activity?: Activity) => void;
+  handleFormClose: () => void;
+  handleDeleteActivity: (activity: Activity) => void;
 }
 
-export default function ActivitiesList({ activities, changeActivity }: Props) {
+export default function ActivitiesList({
+  activities,
+  changeActivity,
+  handleFormClose,
+  handleDeleteActivity,
+}: Props) {
+  function viewButtonHandle(activity: Activity) {
+    handleFormClose();
+    changeActivity(activity);
+  }
+
+  async function deleteActivity(activity: Activity) {
+    await axios.delete<Activity>(`/api/activities/${activity.id}`);
+    handleDeleteActivity(activity);
+  }
+
   return (
     <Segment>
       <Item.Group divided>
@@ -26,7 +44,13 @@ export default function ActivitiesList({ activities, changeActivity }: Props) {
                   floated='right'
                   content='View'
                   color='blue'
-                  onClick={() => changeActivity(activity)}
+                  onClick={() => viewButtonHandle(activity)}
+                />
+                <Button
+                  floated='right'
+                  content='Delete'
+                  color='red'
+                  onClick={() => deleteActivity(activity)}
                 />
                 <Label basic content={activity.category} />
               </Item.Extra>
