@@ -14,7 +14,7 @@ export function emptyActivity(): Activity {
   return {
     id: uuidv4(),
     title: '',
-    date: new Date().toISOString(),
+    date: '2022-11-28',
     description: '',
     category: '',
     city: '',

@@ -1,5 +1,6 @@
-import axios from 'axios';
+import { useState } from 'react';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
+import activityApis from '../../../api/activity-api';
 import Activity from '../../../models/Activity';
 
 interface Props {
@@ -15,14 +16,21 @@ export default function ActivitiesList({
   handleFormClose,
   handleDeleteActivity,
 }: Props) {
+  const [deletingId, setDeletingId] = useState('');
+
   function viewButtonHandle(activity: Activity) {
     handleFormClose();
     changeActivity(activity);
   }
 
   async function deleteActivity(activity: Activity) {
-    await axios.delete<Activity>(`/api/activities/${activity.id}`);
-    handleDeleteActivity(activity);
+    setDeletingId(activity.id);
+    try {
+      await activityApis.delete(activity.id);
+      handleDeleteActivity(activity);
+    } finally {
+      setDeletingId('');
+    }
   }
 
   return (
@@ -45,12 +53,14 @@ export default function ActivitiesList({
                   content='View'
                   color='blue'
                   onClick={() => viewButtonHandle(activity)}
+                  loading={deletingId === activity.id}
                 />
                 <Button
                   floated='right'
                   content='Delete'
                   color='red'
                   onClick={() => deleteActivity(activity)}
+                  loading={deletingId === activity.id}
                 />
                 <Label basic content={activity.category} />
               </Item.Extra>

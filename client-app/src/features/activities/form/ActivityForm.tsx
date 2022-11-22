@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { ChangeEvent, useState } from 'react';
 import { Button, Form, Segment } from 'semantic-ui-react';
+import activityApis from '../../../api/activity-api';
 import Activity, { emptyActivity } from '../../../models/Activity';
 
 interface Props {
@@ -20,15 +20,21 @@ export default function ActivityForm({
     ? { ...selectedActivity }
     : emptyActivity();
   const [activity, setActivity] = useState(initialActivity);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit() {
-    if (isEdit) {
-      await axios.put<Activity>(`/api/activities`, activity);
-    } else {
-      await axios.post<Activity>(`/api/activities`, activity);
+    setSubmitting(true);
+    try {
+      if (isEdit) {
+        await activityApis.update(activity);
+      } else {
+        await activityApis.create(activity);
+      }
+      handleFormClose();
+      handleCreateOrEditActivity(activity);
+    } finally {
+      setSubmitting(false);
     }
-    handleFormClose();
-    handleCreateOrEditActivity(activity);
   }
 
   function handleInputChanged(
@@ -60,6 +66,7 @@ export default function ActivityForm({
           onChange={handleInputChanged}
         />
         <Form.Input
+          type='date'
           placeholder='Date'
           value={activity.date}
           name='date'
@@ -78,7 +85,13 @@ export default function ActivityForm({
           onChange={handleInputChanged}
         />
 
-        <Button floated='right' positive type='submit' content={actionName} />
+        <Button
+          floated='right'
+          positive
+          type='submit'
+          content={actionName}
+          loading={submitting}
+        />
         <Button
           floated='right'
           type='button'
