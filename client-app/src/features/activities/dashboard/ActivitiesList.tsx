@@ -1,37 +1,11 @@
-import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
-import activityApis from '../../../api/activity-api';
-import Activity from '../../../models/Activity';
+import { useStore } from '../../../stores/store';
 
-interface Props {
-  activities: Activity[];
-  changeActivity: (activity?: Activity) => void;
-  handleFormClose: () => void;
-  handleDeleteActivity: (activity: Activity) => void;
-}
-
-export default function ActivitiesList({
-  activities,
-  changeActivity,
-  handleFormClose,
-  handleDeleteActivity,
-}: Props) {
-  const [deletingId, setDeletingId] = useState('');
-
-  function viewButtonHandle(activity: Activity) {
-    handleFormClose();
-    changeActivity(activity);
-  }
-
-  async function deleteActivity(activity: Activity) {
-    setDeletingId(activity.id);
-    try {
-      await activityApis.delete(activity.id);
-      handleDeleteActivity(activity);
-    } finally {
-      setDeletingId('');
-    }
-  }
+export default observer(function ActivitiesList() {
+  const { activityStore } = useStore();
+  const { activities, viewButtonHandle, deletingId, deleteActivity } =
+    activityStore;
 
   return (
     <Segment>
@@ -70,4 +44,4 @@ export default function ActivitiesList({
       </Item.Group>
     </Segment>
   );
-}
+});

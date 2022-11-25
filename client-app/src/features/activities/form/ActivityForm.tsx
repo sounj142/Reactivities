@@ -1,41 +1,17 @@
+import { observer } from 'mobx-react-lite';
 import { ChangeEvent, useState } from 'react';
 import { Button, Form, Segment } from 'semantic-ui-react';
-import activityApis from '../../../api/activity-api';
 import Activity, { emptyActivity } from '../../../models/Activity';
+import { useStore } from '../../../stores/store';
 
-interface Props {
-  selectedActivity?: Activity;
-  handleFormClose: () => void;
-  handleCreateOrEditActivity: (activity: Activity) => void;
-}
+export default observer(function ActivityForm() {
+  const { activityStore } = useStore();
+  const actionName = activityStore.selectedActivity ? 'Update' : 'Create';
 
-export default function ActivityForm({
-  selectedActivity,
-  handleFormClose,
-  handleCreateOrEditActivity,
-}: Props) {
-  const isEdit = !!selectedActivity;
-  const actionName = isEdit ? 'Update' : 'Create';
-  const initialActivity: Activity = selectedActivity
-    ? { ...selectedActivity }
+  const initialActivity: Activity = activityStore.selectedActivity
+    ? { ...activityStore.selectedActivity }
     : emptyActivity();
   const [activity, setActivity] = useState(initialActivity);
-  const [submitting, setSubmitting] = useState(false);
-
-  async function handleSubmit() {
-    setSubmitting(true);
-    try {
-      if (isEdit) {
-        await activityApis.update(activity);
-      } else {
-        await activityApis.create(activity);
-      }
-      handleFormClose();
-      handleCreateOrEditActivity(activity);
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   function handleInputChanged(
     event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -46,7 +22,10 @@ export default function ActivityForm({
 
   return (
     <Segment clearing>
-      <Form onSubmit={handleSubmit} autoComplete='off'>
+      <Form
+        onSubmit={() => activityStore.createOrUpdateActivity(activity)}
+        autoComplete='off'
+      >
         <Form.Input
           placeholder='Title'
           value={activity.title}
@@ -90,15 +69,15 @@ export default function ActivityForm({
           positive
           type='submit'
           content={actionName}
-          loading={submitting}
+          loading={activityStore.formSubmitting}
         />
         <Button
           floated='right'
           type='button'
           content='Cancel'
-          onClick={handleFormClose}
+          onClick={activityStore.handleFormClose}
         />
       </Form>
     </Segment>
   );
-}
+});
