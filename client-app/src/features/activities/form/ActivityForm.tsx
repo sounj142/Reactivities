@@ -33,13 +33,13 @@ export default observer(function ActivityForm() {
   }
 
   function navigateToParentPage() {
-    history.push(id ? `/activities/details/${activity.id}` : '/activities');
+    history.push(id ? `/activities/${activity.id}` : '/activities');
   }
 
   async function formSubmitHandle() {
     setIsSubmitting(true);
     await activityStore.createOrUpdateActivity(activity);
-    history.push(`/activities/details/${activity.id}`);
+    history.push(`/activities/${activity.id}`);
   }
 
   if (id && !activityStore.selectedActivity) return <Loading />;

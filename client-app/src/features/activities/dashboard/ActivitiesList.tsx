@@ -27,7 +27,7 @@ export default observer(function ActivitiesList() {
                   content='View'
                   color='blue'
                   as={Link}
-                  to={`/activities/details/${activity.id}`}
+                  to={`/activities/${activity.id}`}
                   disabled={deletingId === activity.id}
                 />
                 <Button

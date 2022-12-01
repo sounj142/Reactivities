@@ -34,7 +34,7 @@ export default observer(function ActivityDetails() {
               color='blue'
               content='Edit'
               as={Link}
-              to={`/activities/edit/${activity.id}`}
+              to={`/activities/${activity.id}/edit`}
             />
             <Button
               basic

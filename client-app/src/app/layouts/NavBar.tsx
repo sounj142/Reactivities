@@ -17,7 +17,7 @@ export default observer(function NavBar() {
 
         <Menu.Item as={NavLink} to='/activities' name='Activities' exact />
 
-        <Menu.Item as={NavLink} to='/activities/create/new' exact>
+        <Menu.Item as={NavLink} to='/activities/create' exact>
           <Button positive content='Create Activity' />
         </Menu.Item>
       </Container>

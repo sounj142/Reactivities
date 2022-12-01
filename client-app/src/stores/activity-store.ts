@@ -8,6 +8,7 @@ export default class ActivityStore {
   loadingInitial = true;
   deletingId: string = '';
   formSubmitting = false;
+  activitiesLoaded = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -29,7 +30,8 @@ export default class ActivityStore {
     this.formSubmitting = value;
   }
 
-  loadActivities = async () => {
+  loadActivities = async (forceLoad = false) => {
+    if (!forceLoad && this.activitiesLoaded) return;
     this.loadingInitial = true;
     const data = await activityApis.list();
 
@@ -37,6 +39,7 @@ export default class ActivityStore {
       this.activities = data.map(this.formatActivityData);
       this.sortActivities();
       this.loadingInitial = false;
+      this.activitiesLoaded = true;
     });
   };
 
