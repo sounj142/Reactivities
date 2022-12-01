@@ -8,7 +8,7 @@ const sleep = (delay: number) => {
 
 axios.defaults.baseURL = '/api';
 axios.interceptors.request.use(async (request) => {
-  await sleep(1000);
+  await sleep(500);
   return request;
 });
 // axios.interceptors.response.use(async (response) => {

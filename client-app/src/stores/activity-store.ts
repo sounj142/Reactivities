@@ -6,7 +6,6 @@ export default class ActivityStore {
   activities: Activity[] = [];
   selectedActivity?: Activity = undefined;
   loadingInitial = true;
-  editMode = false;
   deletingId: string = '';
   formSubmitting = false;
 
@@ -30,29 +29,32 @@ export default class ActivityStore {
     this.formSubmitting = value;
   }
 
-  handleFormOpen = (activity?: Activity) => {
-    this.editMode = true;
-    this.selectedActivity = activity;
-  };
-
-  handleFormClose = () => {
-    this.editMode = false;
-  };
-
-  viewButtonHandle = (activity: Activity) => {
-    this.handleFormClose();
-    this.selectedActivity = activity;
-  };
-
   loadActivities = async () => {
     this.loadingInitial = true;
     const data = await activityApis.list();
 
     runInAction(() => {
-      this.activities = data.map((x) => ({ ...x, date: x.date.split('T')[0] }));
+      this.activities = data.map(this.formatActivityData);
       this.sortActivities();
       this.loadingInitial = false;
     });
+  };
+
+  private formatActivityData(activity: Activity) {
+    return activity
+      ? { ...activity, date: activity.date.split('T')[0] }
+      : activity;
+  }
+
+  loadActivity = async (id: string) => {
+    if (this.selectedActivity?.id !== id) {
+      this.changeActivity(undefined);
+    }
+    let activity = this.activities.find((x) => x.id === id);
+    if (!activity) {
+      activity = this.formatActivityData(await activityApis.details(id));
+    }
+    this.changeActivity(activity);
   };
 
   deleteActivity = async (activity: Activity) => {
@@ -63,7 +65,6 @@ export default class ActivityStore {
         this.activities = this.activities.filter((x) => x.id !== activity.id);
         if (activity.id === this.selectedActivity?.id) {
           this.selectedActivity = undefined;
-          this.editMode = false;
         }
       });
     } finally {
@@ -81,7 +82,6 @@ export default class ActivityStore {
       }
 
       runInAction(() => {
-        this.handleFormClose();
         const newActivity = { ...activity };
         const index = this.activities.findIndex((x) => x.id === newActivity.id);
         if (index >= 0) this.activities[index] = newActivity;

@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 import { useStore } from '../../../stores/store';
 
 export default observer(function ActivitiesList() {
   const { activityStore } = useStore();
-  const { activities, viewButtonHandle, deletingId, deleteActivity } =
-    activityStore;
+  const { activities, deletingId, deleteActivity } = activityStore;
 
   return (
     <Segment>
@@ -26,8 +26,9 @@ export default observer(function ActivitiesList() {
                   floated='right'
                   content='View'
                   color='blue'
-                  onClick={() => viewButtonHandle(activity)}
-                  loading={deletingId === activity.id}
+                  as={Link}
+                  to={`/activities/details/${activity.id}`}
+                  disabled={deletingId === activity.id}
                 />
                 <Button
                   floated='right'

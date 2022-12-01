@@ -14,4 +14,4 @@ export default function Loading({
       <Loader content={content} />
     </Dimmer>
   );
-};
+}
