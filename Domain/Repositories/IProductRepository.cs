@@ -2,7 +2,7 @@ namespace Domain.Repositories;
 
 public interface IActivityRepository
 {
-    Task<Activity> GetById(Guid id);
+    Task<Activity> GetById(Guid id, bool throwIfNotFound = false);
 
     Task<IList<Activity>> GetAll();
 

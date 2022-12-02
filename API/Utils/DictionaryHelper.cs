@@ -1,14 +1,35 @@
+using System.Diagnostics;
+using System.Text.Json;
+
 namespace API.Utils;
 
 public static class DictionaryHelper
 {
-    public static IDictionary<string, string[]> CreateErrorObject(string name, string message)
+    private static readonly JsonSerializerOptions jsonOptions = new JsonSerializerOptions
     {
-        return new Dictionary<string, string[]> { { name, new[] { message } } };
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    public static string GenerateErrorContent(string name, HttpContext context,
+        params string[] messages)
+    {
+        var error = new ErrorResponse
+        {
+            Errors = new Dictionary<string, string[]> { { name, messages } },
+            TraceId = Activity.Current?.Id ?? context?.TraceIdentifier
+        };
+        return JsonSerializer.Serialize(error, jsonOptions);
     }
 
-    public static IDictionary<string, string[]> CreateErrorObject(string name, params string[] messages)
+    public static string GenerateErrorContent(HttpContext context,
+        IDictionary<string, string[]> failures)
     {
-        return new Dictionary<string, string[]> { { name, messages } };
+        var error = new ErrorResponse
+        {
+            Errors = failures,
+            TraceId = Activity.Current?.Id ?? context?.TraceIdentifier
+        };
+        return JsonSerializer.Serialize(error, jsonOptions);
     }
 }

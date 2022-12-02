@@ -18,10 +18,12 @@ public class ActivityRepository : IActivityRepository
         _mapper = mapper;
     }
 
-    public async Task<Activity> GetById(Guid id)
+    public async Task<Activity> GetById(Guid id, bool throwIfNotFound = false)
     {
         var activityDao = await _dbContext.Activities.AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
+        if (throwIfNotFound && activityDao == null)
+            throw new NotFoundException(ErrorCode.REPO0003, $"Activity '{id}' was not found.");
         return _mapper.Map<Activity>(activityDao);
     }
 
@@ -46,9 +48,7 @@ public class ActivityRepository : IActivityRepository
         var activityDao = await _dbContext.Activities
             .FindAsync(activity.Id);
         if (activityDao == null)
-        {
             throw new NotFoundException(ErrorCode.REPO0001, $"Update rejected. Activity '{activity.Id}' was not found.");
-        }
 
         _mapper.Map(activity, activityDao);
         await _dbContext.SaveChangesAsync();
@@ -58,9 +58,7 @@ public class ActivityRepository : IActivityRepository
     {
         var activityDao = await _dbContext.Activities.FindAsync(id);
         if (activityDao == null)
-        {
             throw new NotFoundException(ErrorCode.REPO0002, $"Delete rejected. Activity '{id}' was not found.");
-        }
 
         _dbContext.Activities.Remove(activityDao);
         await _dbContext.SaveChangesAsync();

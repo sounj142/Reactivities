@@ -14,6 +14,7 @@ public static class DependencyInjection
         //services.AddSingleton<IDateTime, DateTimeService>();
 
         //services.AddScoped<IProductBusiness, ProductBusiness>();
+        
 
         return services;
     }

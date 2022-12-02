@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using Domain.Exceptions;
 
 namespace API.Utils;
@@ -25,7 +24,7 @@ public class ExceptionHandlerMiddleware
         }
         catch (Exception ex)
         {
-            var (code, content) = HandleException(ex);
+            var (code, content) = HandleException(ex, context);
 
             context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.StatusCode = code;
@@ -33,20 +32,20 @@ public class ExceptionHandlerMiddleware
         }
     }
 
-    private (int Code, string Content) HandleException(Exception exception)
+    private (int Code, string Content) HandleException(Exception exception, HttpContext context)
         => exception switch
         {
             ValidationException validationException => (
                 Code: (int)HttpStatusCode.BadRequest,
-                Content: JsonSerializer.Serialize(validationException.Failures)
+                Content: DictionaryHelper.GenerateErrorContent(context, validationException.Failures)
             ),
             NotFoundException notFoundException => (
                 Code: (int)HttpStatusCode.NotFound,
-                Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject(notFoundException.ErrorCode, notFoundException.Message))
+                Content: DictionaryHelper.GenerateErrorContent(notFoundException.ErrorCode, context, notFoundException.Message)
             ),
             FrameworkException frameworkException => (
                 Code: (int)HttpStatusCode.BadRequest,
-                Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject(frameworkException.ErrorCode, frameworkException.Message))
+                Content: DictionaryHelper.GenerateErrorContent(frameworkException.ErrorCode, context, frameworkException.Message)
             ),
             _ => ((Func<(int Code, string Content)>)(() =>
             {
@@ -55,10 +54,9 @@ public class ExceptionHandlerMiddleware
                 _logger.LogError(exception, exception.Message);
 
                 var message = _environment.IsDevelopment() ? exception.Message : "Unknown error";
-
                 return (
                     Code: (int)HttpStatusCode.InternalServerError,
-                    Content: JsonSerializer.Serialize(DictionaryHelper.CreateErrorObject("UNKNOWN_ERROR", message))
+                    Content: DictionaryHelper.GenerateErrorContent("UNKNOWN_ERROR", context, message)
                 );
             }))()
         };

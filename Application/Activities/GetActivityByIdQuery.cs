@@ -2,6 +2,8 @@ using MediatR;
 using AutoMapper;
 using Domain.Repositories;
 using Application.Activities.Dtos;
+using Domain.Exceptions;
+using Application.Core;
 
 namespace Application.Activities;
 
@@ -25,7 +27,7 @@ public class GetActivityByIdHandler : IRequestHandler<GetActivityByIdQuery, Acti
 
     public async Task<ActivityDto> Handle(GetActivityByIdQuery request, CancellationToken cancellationToken)
     {
-        var activity = await _activityRepository.GetById(request.Id);
+        var activity = await _activityRepository.GetById(id: request.Id, throwIfNotFound: true);
         return _mapper.Map<ActivityDto>(activity);
     }
 }

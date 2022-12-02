@@ -1,4 +1,3 @@
-using API.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +5,6 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[ModelStateValidationActionFilter]
 public abstract class BaseApiController : ControllerBase
 {
     private IMediator _mediator;

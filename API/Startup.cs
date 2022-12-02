@@ -19,12 +19,12 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-
-            // cân nhắc bỏ cấu hình này và build lại phần thông báo lỗi
-            // về định dạng giống như của fluent validation trả về
+            services
+                .AddControllers(options =>
+                    options.Filters.Add<ModelStateValidationActionFilterAttribute>());
             services.Configure<ApiBehaviorOptions>(options =>
                 {
+                    // disable default Validation failure response mechanism
                     options.SuppressModelStateInvalidFilter = true;
                 });
             services.AddSwaggerGen(c =>
@@ -37,9 +37,7 @@ namespace API
 
             services
                 .AddFluentValidationAutoValidation()
-                .AddValidatorsFromAssemblyContaining<Application.Core.Result>();
-
-            
+                .AddValidatorsFromAssemblyContaining<Application.Activities.Dtos.ActivityDto>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

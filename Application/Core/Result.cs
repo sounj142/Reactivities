@@ -11,15 +11,9 @@ public class Result
     public bool Succeeded { get; }
     public string Message { get; }
 
-    public static Result Success()
-    {
-        return new Result(true, null);
-    }
+    public static Result Success() => new Result(true, null);
 
-    public static Result Failure(string message)
-    {
-        return new Result(false, message);
-    }
+    public static Result Failure(string message) => new Result(false, message);
 }
 
 public class Result<T> : Result
@@ -31,13 +25,7 @@ public class Result<T> : Result
         Value = value;
     }
 
-    public static Result<T> Success(T value)
-    {
-        return new Result<T>(true, value, null);
-    }
+    public static Result<T> Success(T value) => new Result<T>(true, value, null);
 
-    public new static Result Failure(string message)
-    {
-        return new Result<T>(false, default, message);
-    }
+    public new static Result Failure(string message) => new Result<T>(false, default, message);
 }
