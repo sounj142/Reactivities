@@ -3,7 +3,7 @@ import activityApis from '../api/activity-api';
 import Activity from '../models/Activity';
 
 export default class ActivityStore {
-  activities: Activity[] = [];
+  private activities: Activity[] = [];
   selectedActivity?: Activity = undefined;
   loadingInitial = true;
   deletingId: string = '';
@@ -22,8 +22,25 @@ export default class ActivityStore {
     this.selectedActivity = activity;
   };
 
-  sortActivities() {
-    this.activities.sort((x, y) => Date.parse(x.date) - Date.parse(y.date));
+  get activitiesGroupByDate(): { date: string; activities: Activity[] }[] {
+    const result: { date: string; activities: Activity[] }[] = [];
+    this.activities.forEach((activity) => {
+      let group = result.find((x) => x.date === activity.date);
+      if (!group) {
+        result.push({
+          date: activity.date,
+          activities: [],
+        });
+        group = result[result.length - 1];
+      }
+      group.activities.push(activity);
+    });
+
+    result.forEach((item) => {
+      item.activities.sort((x, y) => x.title.localeCompare(y.title));
+    });
+    result.sort((x, y) => Date.parse(x.date) - Date.parse(y.date));
+    return result;
   }
 
   setFormSubmitting(value: boolean) {
@@ -37,7 +54,6 @@ export default class ActivityStore {
 
     runInAction(() => {
       this.activities = data.map(this.formatActivityData);
-      this.sortActivities();
       this.loadingInitial = false;
       this.activitiesLoaded = true;
     });
@@ -90,7 +106,6 @@ export default class ActivityStore {
         if (index >= 0) this.activities[index] = newActivity;
         else this.activities.push(newActivity);
         this.selectedActivity = newActivity;
-        this.sortActivities();
       });
     } finally {
       this.setFormSubmitting(false);

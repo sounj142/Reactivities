@@ -1,10 +1,13 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { Button, Card, Image } from 'semantic-ui-react';
-import { useParams, Link } from 'react-router-dom';
+import { Grid } from 'semantic-ui-react';
+import { useParams } from 'react-router-dom';
 import Loading from '../../../app/layouts/Loading';
 import { useStore } from '../../../stores/store';
-import { getImageUrl } from '../../../utils/common';
+import ActivityDetailedHeader from './ActivityDetailedHeader';
+import ActivityDetailedInfo from './ActivityDetailedInfo';
+import ActivityDetailedChat from './ActivityDetailedChat';
+import ActivityDetailedSidebar from './ActivityDetailedSidebar';
 
 export default observer(function ActivityDetails() {
   const { activityStore } = useStore();
@@ -16,36 +19,18 @@ export default observer(function ActivityDetails() {
 
   const activity = activityStore.selectedActivity;
 
-  if (activity)
-    return (
-      <Card fluid>
-        <Image src={getImageUrl(activity.category)} />
-        <Card.Content>
-          <Card.Header>{activity.title}</Card.Header>
-          <Card.Meta>
-            <span>{activity.date.toString()}</span>
-          </Card.Meta>
-          <Card.Description>{activity.description}</Card.Description>
-        </Card.Content>
-        <Card.Content extra>
-          <Button.Group widths='2'>
-            <Button
-              basic
-              color='blue'
-              content='Edit'
-              as={Link}
-              to={`/activities/${activity.id}/edit`}
-            />
-            <Button
-              basic
-              color='grey'
-              content='Cancel'
-              as={Link}
-              to='/activities'
-            />
-          </Button.Group>
-        </Card.Content>
-      </Card>
-    );
-  else return <Loading />;
+  if (!activity) return <Loading />;
+  return (
+    <Grid>
+      <Grid.Column width='10'>
+        <ActivityDetailedHeader activity={activity} />
+        <ActivityDetailedInfo activity={activity} />
+        <ActivityDetailedChat />
+      </Grid.Column>
+
+      <Grid.Column width='6'>
+        <ActivityDetailedSidebar />
+      </Grid.Column>
+    </Grid>
+  );
 });
