@@ -27,11 +27,11 @@ export default class ActivityStore {
     this.activities.forEach((activity) => {
       let group = result.find((x) => x.date === activity.date);
       if (!group) {
-        result.push({
+        group = {
           date: activity.date,
           activities: [],
-        });
-        group = result[result.length - 1];
+        };
+        result.push(group);
       }
       group.activities.push(activity);
     });

@@ -7,16 +7,19 @@ public class ExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlerMiddleware> _logger;
-    private readonly IWebHostEnvironment _environment;
+    private readonly IHostEnvironment _environment;
 
-    public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger, IWebHostEnvironment environment)
+    public ExceptionHandlerMiddleware(
+        RequestDelegate next, 
+        ILogger<ExceptionHandlerMiddleware> logger,
+        IHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
         _environment = environment;
     }
 
-    public async Task Invoke(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {
@@ -53,10 +56,10 @@ public class ExceptionHandlerMiddleware
                 // so we only need to write log for other kinds of unhandled exception
                 _logger.LogError(exception, exception.Message);
 
-                var message = _environment.IsDevelopment() ? exception.Message : "Unknown error";
+                var message = _environment.IsDevelopment() ? exception.ToString() : "Server side error";
                 return (
                     Code: (int)HttpStatusCode.InternalServerError,
-                    Content: DictionaryHelper.GenerateErrorContent("UNKNOWN_ERROR", context, message)
+                    Content: DictionaryHelper.GenerateErrorContent(ErrorCode.UNKNOWN_ERROR, context, message)
                 );
             }))()
         };
