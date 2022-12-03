@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Container } from 'semantic-ui-react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import ActivitiesDashboard from '../../features/activities/dashboard/ActivitiesDashboard';
 import NavBar from './NavBar';
 import HomePage from '../../features/home/HomePage';
@@ -8,6 +8,8 @@ import ActivityForm from '../../features/activities/form/ActivityForm';
 import ActivityDetails from '../../features/activities/details/ActivityDetails';
 import TestErrors from '../../features/errors/TestError';
 import { ToastContainer } from 'react-toastify';
+import NotFound from '../../features/errors/NotFound';
+import ServerSideError from '../../features/errors/ServerSideError';
 
 export default observer(function App() {
   return (
@@ -15,35 +17,41 @@ export default observer(function App() {
       <ToastContainer position='bottom-right' hideProgressBar />
 
       <Route exact path='/' component={HomePage} />
-
       <Route
         path='/(.+)'
         render={() => (
           <>
             <NavBar />
-
             <Container style={{ marginTop: '7em' }}>
-              <Route exact path='/activities' component={ActivitiesDashboard} />
-
-              <Route
-                exact
-                path='/activities/:id/edit'
-                component={ActivityForm}
-              />
-
-              <Route exact path='/test-errors' component={TestErrors} />
-
-              <Route exact path='/activities/create' component={ActivityForm} />
-
-              <Route
-                exact
-                path='/activities/:id'
-                render={(props) =>
-                  props.match.params.id === 'create' ? undefined : (
-                    <ActivityDetails />
-                  )
-                }
-              />
+              <Switch>
+                <Route exact path='/test-errors' component={TestErrors} />
+                <Route
+                  exact
+                  path='/activities'
+                  component={ActivitiesDashboard}
+                />
+                <Route
+                  exact
+                  path='/activities/:id/edit'
+                  component={ActivityForm}
+                />
+                <Route
+                  exact
+                  path='/activities/create'
+                  component={ActivityForm}
+                />
+                <Route
+                  exact
+                  path='/activities/:id'
+                  component={ActivityDetails}
+                />
+                <Route
+                  exact
+                  path='/server-side-error'
+                  component={ServerSideError}
+                />
+                <Route exact component={NotFound} />
+              </Switch>
             </Container>
           </>
         )}

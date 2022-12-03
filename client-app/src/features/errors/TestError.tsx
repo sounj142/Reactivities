@@ -1,46 +1,76 @@
-import axios from 'axios';
+import { useState } from 'react';
 import { Button, Header, Segment } from 'semantic-ui-react';
+import { requests } from '../../api/agent';
+import ValidationError from '../../models/ValidationError';
+import { ignoreStatusCodes } from '../../utils/axios';
+import ValidationErrorsPanel from './ValidationErrorsPanel';
 
 export default function TestErrors() {
+  const [errors, setErrors] = useState<ValidationError | undefined>(undefined);
+
   function handleNotFound() {
-    axios.get('/buggy/not-found').catch(err => console.log(err.response));
+    requests.get('/buggy/not-found').catch((err) => console.log(err.response));
   }
 
   function handleDefaultNotFound() {
-    axios.get('/buggy/default-not-found').catch(err => console.log(err.response));
+    requests
+      .get('/buggy/default-not-found')
+      .catch((err) => console.log(err.response));
+  }
+
+  function handle404Url() {
+    requests.get('/not-exist-url').catch((err) => console.log(err.response));
   }
 
   function handleBadRequest() {
-    axios.get('/buggy/bad-request').catch(err => console.log(err.response));
+    requests
+      .get('/buggy/bad-request')
+      .catch((err) => console.log(err.response));
   }
 
   function handleDefaultBadRequest() {
-    axios.get('/buggy/default-bad-request').catch(err => console.log(err.response));
+    requests
+      .get('/buggy/default-bad-request')
+      .catch((err) => console.log(err.response));
   }
 
   function handleServerError() {
-    axios.get('/buggy/server-error').catch(err => console.log(err.response));
+    requests
+      .get('/buggy/server-error')
+      .catch((err) => console.log(err.response));
   }
 
   function handleUnauthorised() {
-    axios.get('/buggy/unauthorised').catch(err => console.log(err.response));
+    requests
+      .get('/buggy/unauthorised')
+      .catch((err) => console.log(err.response));
   }
 
   function handleBadGuid() {
-    axios.get('/activities/notaguid').catch(err => console.log(err.response));
+    requests
+      .get('/activities/notaguid')
+      .catch((err) => console.log(err.response));
   }
 
   function handleValidationError() {
-    axios.post('/activities', {}).catch(err => console.log(err.response));
+    requests
+      .post('/activities', {}, ignoreStatusCodes())
+      .catch((err) => setErrors(err.response.data.errors));
   }
 
   return (
     <>
-      <Header as='h1' content='Test Error component' />
+      <Header as='h1' content='Test Errors component' />
       <Segment>
         <Button.Group widths='16'>
           <Button onClick={handleNotFound} content='Not Found' basic primary />
-          <Button onClick={handleDefaultNotFound} content='Default Not Found' basic primary />
+          <Button
+            onClick={handleDefaultNotFound}
+            content='Default Not Found'
+            basic
+            primary
+          />
+          <Button onClick={handle404Url} content='404' basic primary />
           <Button
             onClick={handleBadRequest}
             content='Bad Request'
@@ -74,6 +104,8 @@ export default function TestErrors() {
           <Button onClick={handleBadGuid} content='Bad Guid' basic primary />
         </Button.Group>
       </Segment>
+
+      {errors && <ValidationErrorsPanel errors={errors} />}
     </>
   );
 }
