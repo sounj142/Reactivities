@@ -1,6 +1,7 @@
 import 'semantic-ui-css/semantic.min.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-toastify/dist/ReactToastify.min.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import './app/layouts/styles.css';
 import ReactDOM from 'react-dom/client';
 import { Router } from 'react-router-dom';

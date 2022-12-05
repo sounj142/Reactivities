@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Container } from 'semantic-ui-react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useLocation } from 'react-router-dom';
 import ActivitiesDashboard from '../../features/activities/dashboard/ActivitiesDashboard';
 import NavBar from './NavBar';
 import HomePage from '../../features/home/HomePage';
@@ -12,6 +12,7 @@ import NotFound from '../../features/errors/NotFound';
 import ServerSideError from '../../features/errors/ServerSideError';
 
 export default observer(function App() {
+  const location = useLocation();
   return (
     <>
       <ToastContainer position='bottom-right' hideProgressBar />
@@ -32,11 +33,13 @@ export default observer(function App() {
                 />
                 <Route
                   exact
+                  key={location.key}
                   path='/activities/:id/edit'
                   component={ActivityForm}
                 />
                 <Route
                   exact
+                  key={location.key}
                   path='/activities/create'
                   component={ActivityForm}
                 />

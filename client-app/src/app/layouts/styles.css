@@ -47,3 +47,8 @@ body {
 }
 
 /*end home page styles*/
+
+.ui.basic.label.validation-error {
+  border: 0;
+  padding-left: 0;
+}

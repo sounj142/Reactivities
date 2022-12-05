@@ -51,6 +51,8 @@ export default class ActivityStore {
     if (!forceLoad && this.activitiesLoaded) return;
     this.loadingInitial = true;
     const data = await activityApis.list();
+    console.log(data);
+    
 
     runInAction(() => {
       this.activities = data.map(this.formatActivityData);
