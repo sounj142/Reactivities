@@ -70,7 +70,7 @@ namespace Persistence
                 new ActivityDao
                 {
                     Title = "Future Activity 3",
-                    Date = DateTime.Now.AddMonths(3),
+                    Date = DateTime.Now.AddMonths(2),
                     Description = "Activity 3 months in future",
                     Category = "drinks",
                     City = "London",
@@ -79,7 +79,7 @@ namespace Persistence
                 new ActivityDao
                 {
                     Title = "Future Activity 4",
-                    Date = DateTime.Now.AddMonths(4),
+                    Date = DateTime.Now.AddMonths(2),
                     Description = "Activity 4 months in future",
                     Category = "drinks",
                     City = "London",

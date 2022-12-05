@@ -1,6 +1,12 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosRequestTransformer,
+  AxiosResponse,
+} from 'axios';
 import { toast } from 'react-toastify';
 import { store } from '../stores/store';
+import { toISOStringWithTimezone } from '../utils/common';
 import { history } from '../utils/route';
 
 function getFistErrorMessage(data: any): string | undefined {
@@ -48,7 +54,27 @@ const sleep = (delay: number) => {
   });
 };
 
+const dateTransformer = (data: any): any => {
+  if (data instanceof Date) {
+    // customize date serialition logic - https://stackoverflow.com/questions/70689305/customizing-date-serialization-in-axios
+    return toISOStringWithTimezone(data);
+  }
+  if (Array.isArray(data)) {
+    return data.map((val) => dateTransformer(val));
+  }
+  if (typeof data === 'object' && data !== null) {
+    return Object.fromEntries(
+      Object.entries(data).map(([key, val]) => [key, dateTransformer(val)])
+    );
+  }
+  return data;
+};
+
 axios.defaults.baseURL = '/api';
+axios.defaults.transformRequest = [
+  dateTransformer,
+  ...(axios.defaults.transformRequest as AxiosRequestTransformer[]),
+];
 axios.interceptors.request.use(async (request) => {
   await sleep(200);
   return request;

@@ -3,6 +3,7 @@ import { Button, Icon, Item, Segment } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../../../stores/store';
 import Activity from '../../../models/Activity';
+import { formatDateTime } from '../../../utils/common';
 
 interface Props {
   activity: Activity;
@@ -30,7 +31,7 @@ export default observer(function ActivitiesListItem({ activity }: Props) {
 
       <Segment>
         <span>
-          <Icon name='clock' /> {activity.date}
+          <Icon name='clock' /> {formatDateTime(activity.date)}
           <Icon name='marker' /> {activity.venue}
         </span>
       </Segment>

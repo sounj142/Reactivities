@@ -1,8 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
-import { Button, Segment } from 'semantic-ui-react';
+import { Button, Header, Segment } from 'semantic-ui-react';
 import { useHistory, useParams } from 'react-router-dom';
-import { emptyActivity } from '../../../models/Activity';
+import Activity, {
+  ActivityModel,
+  emptyActivity,
+} from '../../../models/Activity';
 import { useStore } from '../../../stores/store';
 import Loading from '../../../app/layouts/Loading';
 import { Form, Formik } from 'formik';
@@ -12,6 +15,9 @@ import MyTextArea from '../../../app/form/MyTextArea';
 import MySelectInput from '../../../app/form/MySelectInput';
 import categoryOptions from '../../../models/CategoryOptions';
 import MyDateTimePicker from '../../../app/form/MyDateTimePicker';
+import { toast } from 'react-toastify';
+import ValidationErrorsPanel from '../../errors/ValidationErrorsPanel';
+import ValidationError from '../../../models/ValidationError';
 
 export default observer(function ActivityForm() {
   const { id } = useParams<{ id?: string }>();
@@ -19,13 +25,14 @@ export default observer(function ActivityForm() {
   const actionName = id ? 'Update' : 'Create';
   const history = useHistory();
   const [initialActivity, setInitialActivity] = useState(emptyActivity());
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverSideErrors, setServerSideErrors] =
+    useState<ValidationError | null>(null);
 
   const validationSchema = Yup.object({
     title: Yup.string()
       .required('Title is required.')
       .max(200, 'Title must not exceed 200 characters.'),
-    date: Yup.string().required('Date is required.'),
+    date: Yup.string().nullable().required('Date is required.'),
     description: Yup.string()
       .required('Description is required.')
       .max(1000, 'Description must not exceed 1000 characters.'),
@@ -51,11 +58,19 @@ export default observer(function ActivityForm() {
     }
   }, [activityStore, id]);
 
-  // async function formSubmitHandle() {
-  //   setIsSubmitting(true);
-  //   await activityStore.createOrUpdateActivity(activity);
-  //   history.push(`/activities/${activity.id}`);
-  // }
+  async function formSubmitHandle(activity: ActivityModel) {
+    setServerSideErrors(null);
+    try {
+      await activityStore.createOrUpdateActivity(activity as Activity);
+      history.push(`/activities/${activity.id}`);
+    } catch (err: any) {
+      if (err?.response?.data?.errors) {
+        setServerSideErrors(err?.response?.data?.errors);
+      } else {
+        toast.error('Bad Request (Unknown Error).');
+      }
+    }
+  }
 
   function navigateToParentPage() {
     history.push(id ? `/activities/${initialActivity.id}` : '/activities');
@@ -65,15 +80,17 @@ export default observer(function ActivityForm() {
   else
     return (
       <Segment clearing>
+        {serverSideErrors && (
+          <ValidationErrorsPanel errors={serverSideErrors} />
+        )}
+        <Header content='Activity Details' sub color='teal' />
         <Formik
           initialValues={initialActivity}
           enableReinitialize
           validationSchema={validationSchema}
-          onSubmit={(values) => {
-            console.log(values);
-          }}
+          onSubmit={formSubmitHandle}
         >
-          {() => (
+          {({ isValid, isSubmitting, dirty }) => (
             <Form className='ui form' autoComplete='off'>
               <MyTextInput placeholder='Title' name='title' />
               <MyTextArea
@@ -93,6 +110,8 @@ export default observer(function ActivityForm() {
                 timeCaption='time'
                 dateFormat='MMMM d, yyyy h:mm aa'
               />
+
+              <Header content='Location Details' sub color='teal' />
               <MyTextInput placeholder='City' name='city' />
               <MyTextInput placeholder='Venue' name='venue' />
 
@@ -101,8 +120,8 @@ export default observer(function ActivityForm() {
                 positive
                 type='submit'
                 content={actionName}
-                loading={activityStore.formSubmitting}
-                disabled={isSubmitting}
+                loading={isSubmitting}
+                disabled={!isValid || !dirty || isSubmitting}
               />
               <Button
                 floated='right'
