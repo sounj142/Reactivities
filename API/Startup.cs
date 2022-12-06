@@ -1,10 +1,6 @@
-using Microsoft.OpenApi.Models;
 using Persistence;
 using Application;
-using FluentValidation;
 using API.Utils;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API
 {
@@ -19,25 +15,9 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddControllers(options =>
-                    options.Filters.Add<ModelStateValidationActionFilterAttribute>());
-            services.Configure<ApiBehaviorOptions>(options =>
-                {
-                    // disable default Validation failure response mechanism
-                    options.SuppressModelStateInvalidFilter = true;
-                });
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
-            });
-
             services.AddRepositoryServices(_configuration, "DefaultConnection");
             services.AddApplicationServices();
-
-            services
-                .AddFluentValidationAutoValidation()
-                .AddValidatorsFromAssemblyContaining<Application.Activities.Dtos.ActivityDto>();
+            services.AddApiServices(_configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,6 +37,7 @@ namespace API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

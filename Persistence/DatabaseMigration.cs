@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,8 +15,10 @@ namespace Persistence
             try
             {
                 using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserDao>>();
                 await context.Database.MigrateAsync();
-                await SeedInitialData(context);
+                await SeedInitialActivities(context);
+                await SeedInitialUsers(userManager);
             }
             catch (Exception ex)
             {
@@ -25,7 +28,7 @@ namespace Persistence
             }
         }
 
-        private static async Task SeedInitialData(DataContext context)
+        private static async Task SeedInitialActivities(DataContext context)
         {
             if (await context.Activities.AnyAsync()) return;
 
@@ -125,6 +128,41 @@ namespace Persistence
 
             await context.Activities.AddRangeAsync(activities);
             await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedInitialUsers(UserManager<AppUserDao> userManager)
+        {
+            if (await userManager.Users.AnyAsync()) return;
+
+            var users = new List<AppUserDao> {
+                new AppUserDao
+                {
+                    DisplayName = "Hoang Luong",
+                    UserName="tazan645",
+                    Email="tazan645@gmail.com",
+                    Bio="male"
+                },
+                new AppUserDao
+                {
+                    DisplayName = "Tom",
+                    UserName="tom",
+                    Email="tom@hoang11xx.com",
+                    Bio="male"
+                },
+                new AppUserDao
+                {
+                    DisplayName = "Jane",
+                    UserName="jane",
+                    Email="jane@hoang11xx.com",
+                    Bio="female"
+                }
+            };
+
+            const string password = "superman";
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user, password);
+            }
         }
     }
 }

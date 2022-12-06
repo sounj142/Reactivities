@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Button, Header, Segment } from 'semantic-ui-react';
 import { requests } from '../../api/agent';
-import ValidationError from '../../models/ValidationError';
 import { ignoreStatusCodes } from '../../utils/axios';
-import ValidationErrorsPanel from './ValidationErrorsPanel';
+import ValidationErrors from './ValidationErrors';
 
 export default function TestErrors() {
-  const [errors, setErrors] = useState<ValidationError | undefined>(undefined);
+  const [serverResponse, setServerResponse] = useState<any>(undefined);
 
   function handleNotFound() {
     requests.get('/buggy/not-found').catch((err) => console.log(err.response));
@@ -55,7 +54,7 @@ export default function TestErrors() {
   function handleValidationError() {
     requests
       .post('/activities', {}, ignoreStatusCodes())
-      .catch((err) => setErrors(err.response.data.errors));
+      .catch((err) => setServerResponse(err.response.data));
   }
 
   return (
@@ -105,7 +104,9 @@ export default function TestErrors() {
         </Button.Group>
       </Segment>
 
-      {errors && <ValidationErrorsPanel errors={errors} />}
+      {serverResponse && (
+        <ValidationErrors serverResponse={serverResponse} />
+      )}
     </>
   );
 }

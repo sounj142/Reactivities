@@ -15,9 +15,7 @@ import MyTextArea from '../../../app/form/MyTextArea';
 import MySelectInput from '../../../app/form/MySelectInput';
 import categoryOptions from '../../../models/CategoryOptions';
 import MyDateTimePicker from '../../../app/form/MyDateTimePicker';
-import { toast } from 'react-toastify';
-import ValidationErrorsPanel from '../../errors/ValidationErrorsPanel';
-import ValidationError from '../../../models/ValidationError';
+import ValidationErrors from '../../errors/ValidationErrors';
 
 export default observer(function ActivityForm() {
   const { id } = useParams<{ id?: string }>();
@@ -25,8 +23,7 @@ export default observer(function ActivityForm() {
   const actionName = id ? 'Update' : 'Create';
   const history = useHistory();
   const [initialActivity, setInitialActivity] = useState(emptyActivity());
-  const [serverSideErrors, setServerSideErrors] =
-    useState<ValidationError | null>(null);
+  const [serverResponse, setServerResponse] = useState<any>(undefined);
 
   const validationSchema = Yup.object({
     title: Yup.string()
@@ -59,16 +56,12 @@ export default observer(function ActivityForm() {
   }, [activityStore, id]);
 
   async function formSubmitHandle(activity: ActivityModel) {
-    setServerSideErrors(null);
+    setServerResponse(undefined);
     try {
       await activityStore.createOrUpdateActivity(activity as Activity);
       history.push(`/activities/${activity.id}`);
     } catch (err: any) {
-      if (err?.response?.data?.errors) {
-        setServerSideErrors(err?.response?.data?.errors);
-      } else {
-        toast.error('Bad Request (Unknown Error).');
-      }
+      setServerResponse(err.response?.data);
     }
   }
 
@@ -80,9 +73,7 @@ export default observer(function ActivityForm() {
   else
     return (
       <Segment clearing>
-        {serverSideErrors && (
-          <ValidationErrorsPanel errors={serverSideErrors} />
-        )}
+        {serverResponse && <ValidationErrors serverResponse={serverResponse} />}
         <Header content='Activity Details' sub color='teal' />
         <Formik
           initialValues={initialActivity}
