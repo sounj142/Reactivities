@@ -77,6 +77,9 @@ axios.defaults.transformRequest = [
 ];
 axios.interceptors.request.use(async (request) => {
   await sleep(200);
+  const token = store.userStore.user?.token;
+  if (token && request.headers)
+    request.headers.Authorization = `Bearer ${token}`;
   return request;
 });
 

@@ -10,12 +10,14 @@ import TestErrors from '../../features/errors/TestError';
 import { ToastContainer } from 'react-toastify';
 import NotFound from '../../features/errors/NotFound';
 import ServerSideError from '../../features/errors/ServerSideError';
+import ModalContainer from '../modals/ModalContainer';
 
 export default observer(function App() {
   const location = useLocation();
   return (
     <>
       <ToastContainer position='bottom-right' hideProgressBar />
+      <ModalContainer />
 
       <Route exact path='/' component={HomePage} />
       <Route
@@ -53,6 +55,7 @@ export default observer(function App() {
                   path='/server-side-error'
                   component={ServerSideError}
                 />
+
                 <Route exact component={NotFound} />
               </Switch>
             </Container>

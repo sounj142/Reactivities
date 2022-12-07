@@ -57,9 +57,10 @@ public static class DependencyInjection
     {
         services.AddIdentityCore<AppUserDao>(options =>
             {
-                // options.Password.RequireNonAlphanumeric = false;
-                // options.Password.RequireUppercase = false;
-                // options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddSignInManager<SignInManager<AppUserDao>>();

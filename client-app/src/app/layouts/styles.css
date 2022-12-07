@@ -52,3 +52,7 @@ body {
   border: 0;
   padding-left: 0;
 }
+
+.ui.form .error.message.error-messages {
+  display: block;
+}

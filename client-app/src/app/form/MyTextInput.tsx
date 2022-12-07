@@ -1,7 +1,9 @@
 import { FieldInputProps } from 'formik';
 import { FieldCommonLogic, CommonProps } from './FieldCommonLogic';
 
-interface Props extends CommonProps {}
+interface Props extends CommonProps {
+  type?: string;
+}
 
 export default function MyTextInput(props: Props) {
   const renderInputElement = (field: FieldInputProps<any>) => (
