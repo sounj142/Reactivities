@@ -1,28 +1,24 @@
 using MediatR;
 using AutoMapper;
 using Domain.Repositories;
-using Application.Activities.Dtos;
+using Domain;
 
 namespace Application.Activities;
 
-public class GetActivitiesQuery : IRequest<ActivityDto[]> { }
+public class GetActivitiesQuery : IRequest<IList<ActivityWithAttendees>> { }
 
-public class GetActivitiesHandler : IRequestHandler<GetActivitiesQuery, ActivityDto[]>
+public class GetActivitiesHandler : IRequestHandler<GetActivitiesQuery, IList<ActivityWithAttendees>>
 {
     private readonly IActivityRepository _activityRepository;
-    private readonly IMapper _mapper;
 
-    public GetActivitiesHandler(
-        IActivityRepository activityRepository,
-        IMapper mapper)
+    public GetActivitiesHandler(IActivityRepository activityRepository)
     {
         _activityRepository = activityRepository;
-        _mapper = mapper;
     }
 
-    public async Task<ActivityDto[]> Handle(GetActivitiesQuery request, CancellationToken cancellationToken)
+    public async Task<IList<ActivityWithAttendees>> Handle(GetActivitiesQuery request, CancellationToken cancellationToken)
     {
         var activities = await _activityRepository.GetAll();
-        return _mapper.Map<ActivityDto[]>(activities);
+        return activities;
     }
 }

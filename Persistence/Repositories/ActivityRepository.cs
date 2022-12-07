@@ -2,6 +2,7 @@ using Domain;
 using Domain.Exceptions;
 using Domain.Repositories;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Daos;
 
@@ -18,26 +19,32 @@ public class ActivityRepository : IActivityRepository
         _mapper = mapper;
     }
 
-    public async Task<Activity> GetById(Guid id, bool throwIfNotFound = false)
+    public async Task<ActivityWithAttendees> GetById(Guid id, bool throwIfNotFound = false)
     {
-        var activityDao = await _dbContext.Activities.AsNoTracking()
+        var activity = await _dbContext.Activities.AsNoTracking()
+            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(p => p.Id == id);
-        if (throwIfNotFound && activityDao == null)
+        if (throwIfNotFound && activity == null)
             throw new NotFoundException(ErrorCode.REPO0003, $"Activity '{id}' was not found.");
-        return _mapper.Map<Activity>(activityDao);
+
+        return activity;
     }
 
-    public async Task<IList<Activity>> GetAll()
+    public async Task<IList<ActivityWithAttendees>> GetAll()
     {
-        var activitiyDaos = await _dbContext.Activities.AsNoTracking()
-            .OrderBy(p => p.Title)
+        var activities = await _dbContext.Activities.AsNoTracking()
+            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider)
             .ToListAsync();
-        return _mapper.Map<IList<Activity>>(activitiyDaos);
+        return activities;
     }
 
-    public async Task Create(Activity activity)
+    public async Task Create(Activity activity, ActivityAttendee userInfo)
     {
         var activityDao = _mapper.Map<ActivityDao>(activity);
+        activityDao.Attendees = new List<ActivityAttendeeDao>
+        {
+             _mapper.Map<ActivityAttendeeDao>(userInfo)
+        };
         _dbContext.Activities.Add(activityDao);
 
         await _dbContext.SaveChangesAsync();

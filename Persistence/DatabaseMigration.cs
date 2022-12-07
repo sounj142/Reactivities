@@ -17,8 +17,8 @@ namespace Persistence
                 using var context = scope.ServiceProvider.GetRequiredService<DataContext>();
                 using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUserDao>>();
                 await context.Database.MigrateAsync();
-                await SeedInitialActivities(context);
                 await SeedInitialUsers(userManager);
+                await SeedInitialActivities(context);
             }
             catch (Exception ex)
             {
@@ -31,6 +31,7 @@ namespace Persistence
         private static async Task SeedInitialActivities(DataContext context)
         {
             if (await context.Activities.AnyAsync()) return;
+            var users = await context.Users.ToListAsync();
 
             var activities = new List<ActivityDao>
             {
@@ -42,6 +43,15 @@ namespace Persistence
                     Category = "drinks",
                     City = "London",
                     Venue = "Pub",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[0],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -51,6 +61,15 @@ namespace Persistence
                     Category = "culture",
                     City = "Paris",
                     Venue = "Louvre",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[0],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -60,6 +79,15 @@ namespace Persistence
                     Category = "culture",
                     City = "London",
                     Venue = "Natural History Museum",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[0],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -69,6 +97,15 @@ namespace Persistence
                     Category = "music",
                     City = "London",
                     Venue = "O2 Arena",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[0],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -78,6 +115,15 @@ namespace Persistence
                     Category = "drinks",
                     City = "London",
                     Venue = "Another pub",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[0],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -87,6 +133,15 @@ namespace Persistence
                     Category = "drinks",
                     City = "London",
                     Venue = "Yet another pub",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[1],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -96,6 +151,15 @@ namespace Persistence
                     Category = "drinks",
                     City = "London",
                     Venue = "Just another pub",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[1],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -105,6 +169,15 @@ namespace Persistence
                     Category = "music",
                     City = "London",
                     Venue = "Roundhouse Camden",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[1],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -114,6 +187,15 @@ namespace Persistence
                     Category = "travel",
                     City = "London",
                     Venue = "Somewhere on the Thames",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[1],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 },
                 new ActivityDao
                 {
@@ -123,6 +205,15 @@ namespace Persistence
                     Category = "film",
                     City = "London",
                     Venue = "Cinema",
+                    Attendees = new List<ActivityAttendeeDao>
+                    {
+                        new ActivityAttendeeDao
+                        {
+                            User = users[1],
+                            IsHost = true,
+                            DateJoined = DateTime.Now
+                        }
+                    }
                 }
             };
 
@@ -158,7 +249,7 @@ namespace Persistence
                 }
             };
 
-            const string password = "superman";
+            const string password = "111111";
             foreach (var user in users)
             {
                 await userManager.CreateAsync(user, password);

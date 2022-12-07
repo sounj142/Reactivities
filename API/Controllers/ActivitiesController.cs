@@ -1,5 +1,6 @@
 using Application.Activities;
 using Application.Activities.Dtos;
+using Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -7,13 +8,13 @@ namespace API.Controllers;
 public class ActivitiesController : BaseApiController
 {
     [HttpGet]
-    public async Task<ActivityDto[]> Get()
+    public async Task<IList<ActivityWithAttendees>> Get()
     {
         return await Mediator.Send(new GetActivitiesQuery());
     }
 
     [HttpGet("{id}")]
-    public async Task<ActivityDto> Get(Guid id)
+    public async Task<ActivityWithAttendees> Get(Guid id)
     {
         return await Mediator.Send(new GetActivityByIdQuery { Id = id });
     }

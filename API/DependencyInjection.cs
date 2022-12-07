@@ -41,7 +41,8 @@ public static class DependencyInjection
 
         services
                 .AddFluentValidationAutoValidation()
-                .AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+                .AddValidatorsFromAssemblyContaining<Application.Activities.Dtos.ActivityDto>()
+                .AddValidatorsFromAssemblyContaining<Startup>();
 
         services.AddScoped<TokenService>();
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
