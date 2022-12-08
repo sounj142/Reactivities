@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Activities;
 
-public class CreateActivityCommand : IRequest
+public class CreateActivityCommand : IRequest<ActivityWithAttendees>
 {
     public ActivityDto Activity { get; set; }
 }
 
-public class CreateActivityCommandHandler : IRequestHandler<CreateActivityCommand>
+public class CreateActivityCommandHandler : IRequestHandler<CreateActivityCommand, ActivityWithAttendees>
 {
     private readonly ILogger<CreateActivityCommandHandler> _logger;
     private readonly IActivityRepository _activityRepository;
@@ -32,12 +32,14 @@ public class CreateActivityCommandHandler : IRequestHandler<CreateActivityComman
         _currentUserContext = currentUserContext;
     }
 
-    public async Task<Unit> Handle(CreateActivityCommand request, CancellationToken cancellationToken)
+    public async Task<ActivityWithAttendees> Handle(CreateActivityCommand request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Creating activity Id '{@Id}', title '{@Title}'", request.Activity.Id, request.Activity.Title);
 
         var activity = _mapper.Map<Activity>(request.Activity);
         await _activityRepository.Create(activity, _currentUserContext.GetCurrentUserId(), DateTimeOffset.Now);
-        return Unit.Value;
+
+        var createdActivity = await _activityRepository.GetById(id: activity.Id);
+        return createdActivity;
     }
 }

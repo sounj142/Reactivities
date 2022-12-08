@@ -36,7 +36,7 @@ public class ReactivateActivityCommandHandler : IRequestHandler<ReactivateActivi
         if (!activity.IsCancelled)
             throw new FrameworkException(ErrorCode.APP0014, "Reactivation rejected. Activity is still active.");
 
-        await _activityRepository.Cancel(request.Id);
+        await _activityRepository.Reactivate(request.Id);
         return Unit.Value;
     }
 }

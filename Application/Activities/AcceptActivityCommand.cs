@@ -1,3 +1,4 @@
+using Domain;
 using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.Services;
@@ -5,17 +6,17 @@ using MediatR;
 
 namespace Application.Activities;
 
-public class SignInActivityCommand : IRequest
+public class AcceptActivityCommand : IRequest<Attendee>
 {
     public Guid Id { get; set; }
 }
 
-public class SignInActivityCommandHandler : IRequestHandler<SignInActivityCommand>
+public class AcceptActivityCommandHandler : IRequestHandler<AcceptActivityCommand, Attendee>
 {
     private readonly IActivityRepository _activityRepository;
     private readonly ICurrentUserContext _currentUserContext;
 
-    public SignInActivityCommandHandler(
+    public AcceptActivityCommandHandler(
         IActivityRepository activityRepository,
         ICurrentUserContext currentUserContext)
     {
@@ -23,7 +24,7 @@ public class SignInActivityCommandHandler : IRequestHandler<SignInActivityComman
         _currentUserContext = currentUserContext;
     }
 
-    public async Task<Unit> Handle(SignInActivityCommand request, CancellationToken cancellationToken)
+    public async Task<Attendee> Handle(AcceptActivityCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserContext.GetCurrentUserId();
         var activity = await _activityRepository.GetById(request.Id);
@@ -35,7 +36,7 @@ public class SignInActivityCommandHandler : IRequestHandler<SignInActivityComman
         if (activity.IsCancelled)
             throw new FrameworkException(ErrorCode.APP0007, "Attendance rejected. Activity has already canceled.");
 
-        await _activityRepository.SignIn(request.Id, userId, DateTimeOffset.Now); 
-        return Unit.Value;
+        var attendee = await _activityRepository.Accept(request.Id, userId, DateTimeOffset.Now);
+        return attendee;
     }
 }

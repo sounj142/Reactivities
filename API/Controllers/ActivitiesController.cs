@@ -21,23 +21,30 @@ public class ActivitiesController : BaseApiController
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create(ActivityDto activity)
+    public async Task<ActionResult<ActivityWithAttendees>> Create(ActivityDto activity)
     {
-        await Mediator.Send(new CreateActivityCommand { Activity = activity });
-        return Ok();
+        var result = await Mediator.Send(new CreateActivityCommand { Activity = activity });
+        return Ok(result);
     }
 
-    [HttpPost("{id}/signin")]
-    public async Task<ActionResult> SignIn(Guid id)
+    [HttpPut]
+    public async Task<ActionResult<ActivityWithAttendees>> Update(ActivityDto activity)
     {
-        await Mediator.Send(new SignInActivityCommand { Id = id });
-        return Ok();
+        var result = await Mediator.Send(new UpdateActivityCommand { Activity = activity });
+        return Ok(result);
+    }
+
+    [HttpPost("{id}/accept")]
+    public async Task<ActionResult<Attendee>> Accept(Guid id)
+    {
+        var atendee = await Mediator.Send(new AcceptActivityCommand { Id = id });
+        return Ok(atendee);
     }
 
     [HttpPost("{id}/reject")]
     public async Task<ActionResult> Reject(Guid id)
     {
-        await Mediator.Send(new RejectActivityCommand { Id = id });
+        await Mediator.Send(new RejectAttendanceCommand { Id = id });
         return Ok();
     }
 
@@ -52,13 +59,6 @@ public class ActivitiesController : BaseApiController
     public async Task<ActionResult> Reactivate(Guid id)
     {
         await Mediator.Send(new ReactivateActivityCommand { Id = id });
-        return Ok();
-    }
-
-    [HttpPut]
-    public async Task<ActionResult> Update(ActivityDto activity)
-    {
-        await Mediator.Send(new UpdateActivityCommand { Activity = activity });
         return Ok();
     }
 }

@@ -65,7 +65,7 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task SignIn(Guid activityId, string userId, DateTimeOffset dateJoined)
+    public async Task<Attendee> Accept(Guid activityId, string userId, DateTimeOffset dateJoined)
     {
         _dbContext.ActivityAttendees.Add(new ActivityAttendeeDao
         {
@@ -75,6 +75,11 @@ public class ActivityRepository : IActivityRepository
             DateJoined = dateJoined
         });
         await _dbContext.SaveChangesAsync();
+
+        var activityAttendee = _dbContext.ActivityAttendees
+            .Include(x => x.User)
+            .FirstOrDefault(x => x.UserId == userId && x.ActivityId == activityId);
+        return _mapper.Map<Attendee>(activityAttendee);
     }
 
     public async Task Reject(Guid activityId, string userId)
@@ -97,6 +102,17 @@ public class ActivityRepository : IActivityRepository
             throw new NotFoundException(ErrorCode.REPO0002, "Cancellation rejected. Activity is not found.");
 
         activity.IsCancelled = true;
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task Reactivate(Guid activityId)
+    {
+        var activity = await _dbContext.Activities
+             .FirstOrDefaultAsync(x => x.Id == activityId);
+        if (activity == null)
+            throw new NotFoundException(ErrorCode.REPO0002, "Cancellation rejected. Activity is not found.");
+
+        activity.IsCancelled = false;
         await _dbContext.SaveChangesAsync();
     }
 }

@@ -1,13 +1,13 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import activityApis from '../api/activity-api';
-import Activity from '../models/Activity';
+import Activity, { ActivityModel } from '../models/Activity';
 import { formatDate } from '../utils/common';
+import { store } from './store';
 
 export default class ActivityStore {
   private activities: Activity[] = [];
   selectedActivity?: Activity = undefined;
   loadingInitial = true;
-  deletingId: string = '';
   formSubmitting = false;
   activitiesLoaded = false;
 
@@ -15,11 +15,7 @@ export default class ActivityStore {
     makeAutoObservable(this);
   }
 
-  setDeletingId = (value: string) => {
-    this.deletingId = value;
-  };
-
-  changeActivity = (activity?: Activity) => {
+  changeSelectedActivity = (activity?: Activity) => {
     this.selectedActivity = activity;
   };
 
@@ -61,61 +57,115 @@ export default class ActivityStore {
       this.activities = data.map(this.formatActivityData);
       this.loadingInitial = false;
       this.activitiesLoaded = true;
+      if (this.selectedActivity) {
+        this.selectedActivity = this.activities.find(
+          (x) => x.id === this.selectedActivity?.id
+        );
+      }
     });
   };
 
   private formatActivityData(activity: Activity): Activity {
     if (activity) {
-      const date =
-        activity.date instanceof Date ? activity.date : new Date(activity.date);
-      return { ...activity, date };
+      if (!(activity.date instanceof Date))
+        activity.date = new Date(activity.date);
+      activity.attendees.sort((x, y) =>
+        x.displayName.localeCompare(y.displayName)
+      );
     }
     return activity;
   }
 
   loadActivity = async (id: string) => {
     if (this.selectedActivity?.id !== id) {
-      this.changeActivity(undefined);
+      this.changeSelectedActivity(undefined);
     }
     let activity = this.activities.find((x) => x.id === id);
     if (!activity) {
       activity = this.formatActivityData(await activityApis.details(id));
     }
-    this.changeActivity(activity);
+    this.changeSelectedActivity(activity);
   };
 
-  deleteActivity = async (activity: Activity) => {
-    this.setDeletingId(activity.id);
-    try {
-      await activityApis.delete(activity.id);
-      runInAction(() => {
-        this.activities = this.activities.filter((x) => x.id !== activity.id);
-        if (activity.id === this.selectedActivity?.id) {
-          this.selectedActivity = undefined;
-        }
-      });
-    } finally {
-      this.setDeletingId('');
+  standardizeActivitisAfterAnActivityChanged = (activity: Activity) => {
+    this.formatActivityData(activity);
+    const index = this.activities.findIndex((x) => x.id === activity.id);
+    if (index >= 0) this.activities[index] = activity;
+    else this.activities.push(activity);
+
+    if (activity.id === this.selectedActivity?.id) {
+      this.changeSelectedActivity(activity);
     }
+    return activity;
   };
 
-  createOrUpdateActivity = async (activity: Activity) => {
+  private callAsyncMethod = async (func: () => Promise<any>) => {
     this.setFormSubmitting(true);
     try {
-      if (this.selectedActivity) {
-        await activityApis.update(activity);
-      } else {
-        await activityApis.create(activity);
-      }
-      runInAction(() => {
-        const newActivity = this.formatActivityData(activity);
-        const index = this.activities.findIndex((x) => x.id === newActivity.id);
-        if (index >= 0) this.activities[index] = newActivity;
-        else this.activities.push(newActivity);
-        this.selectedActivity = newActivity;
-      });
+      await func();
     } finally {
       this.setFormSubmitting(false);
     }
+  };
+
+  createOrUpdateActivity = async (activity: ActivityModel) => {
+    let updatedActivity = this.selectedActivity
+      ? await activityApis.update(activity)
+      : await activityApis.create(activity);
+    this.standardizeActivitisAfterAnActivityChanged(updatedActivity);
+  };
+
+  getHostInfo = (activity: Activity) => {
+    return activity.attendees.find((x) => x.isHost);
+  };
+
+  checkCurrentUserIsHostOf = (activity: Activity) => {
+    const userName = store.userStore.user?.userName;
+    return userName && userName === this.getHostInfo(activity)?.userName;
+  };
+
+  checkCurrentUserJoinActivity = (activity: Activity) => {
+    const userName = store.userStore.user?.userName;
+    return userName && activity.attendees.find((x) => x.userName === userName);
+  };
+
+  acceptAttendance = (activity: Activity) => {
+    return this.callAsyncMethod(async () => {
+      const attendee = await activityApis.acceptAttendance(activity.id);
+      runInAction(() => {
+        activity.attendees.push(attendee);
+        this.standardizeActivitisAfterAnActivityChanged(activity);
+      });
+    });
+  };
+
+  rejectAttendance = (activity: Activity) => {
+    return this.callAsyncMethod(async () => {
+      await activityApis.rejectAttendance(activity.id);
+      runInAction(() => {
+        const userName = store.userStore.user?.userName;
+        activity.attendees = activity.attendees.filter(
+          (x) => x.userName !== userName
+        );
+      });
+    });
+  };
+
+  cancelActivity = (activity: Activity) => {
+    return this.callAsyncMethod(async () => {
+      await activityApis.cancelActivity(activity.id);
+      runInAction(() => {
+        activity.isCancelled = true;
+      });
+    });
+  };
+
+  reactivateActivity = (activity: Activity) => {
+    return this.callAsyncMethod(async () => {
+      await activityApis.reactivateActivity(activity.id);
+      runInAction(() => {
+        activity.isCancelled = false;
+      });
+    });
   };
 }

@@ -14,7 +14,9 @@ export default observer(function ActivityDetails() {
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    activityStore.loadActivity(id);
+    if (activityStore.selectedActivity?.id !== id) {
+      activityStore.loadActivity(id);
+    }
   }, [activityStore, id]);
 
   const activity = activityStore.selectedActivity;
@@ -29,7 +31,7 @@ export default observer(function ActivityDetails() {
       </Grid.Column>
 
       <Grid.Column width='6'>
-        <ActivityDetailedSidebar />
+        <ActivityDetailedSidebar attendees={activity.attendees} />
       </Grid.Column>
     </Grid>
   );

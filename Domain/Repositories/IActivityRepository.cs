@@ -10,9 +10,10 @@ public interface IActivityRepository
 
     Task Update(Activity activity);
 
-    Task SignIn(Guid activityId, string userId, DateTimeOffset dateJoined);
+    Task<Attendee> Accept(Guid activityId, string userId, DateTimeOffset dateJoined);
 
     Task Reject(Guid activityId, string userId);
 
     Task Cancel(Guid activityId);
+    Task Reactivate(Guid activityId);
 }

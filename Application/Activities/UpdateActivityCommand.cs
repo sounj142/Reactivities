@@ -5,16 +5,15 @@ using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.Services;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Activities;
 
-public class UpdateActivityCommand : IRequest
+public class UpdateActivityCommand : IRequest<ActivityWithAttendees>
 {
     public ActivityDto Activity { get; set; }
 }
 
-public class UpdateActivityCommandHandler : IRequestHandler<UpdateActivityCommand>
+public class UpdateActivityCommandHandler : IRequestHandler<UpdateActivityCommand, ActivityWithAttendees>
 {
     private readonly IActivityRepository _activityRepository;
     private readonly ICurrentUserContext _currentUserContext;
@@ -30,7 +29,7 @@ public class UpdateActivityCommandHandler : IRequestHandler<UpdateActivityComman
         _mapper = mapper;
     }
 
-    public async Task<Unit> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
+    public async Task<ActivityWithAttendees> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
     {
         var currentActivity = await _activityRepository.GetById(request.Activity.Id);
         if (currentActivity == null)
@@ -38,9 +37,13 @@ public class UpdateActivityCommandHandler : IRequestHandler<UpdateActivityComman
         var userId = _currentUserContext.GetCurrentUserId();
         if (!currentActivity.Attendees.Any(x => x.IsHost && x.UserId == userId))
             throw new FrameworkException(ErrorCode.APP_DONT_HAVE_EDIT_PERMISSION, "You don't have permission to edit this activity.");
+        if (currentActivity.IsCancelled)
+            throw new FrameworkException(ErrorCode.APP0015, "Update rejected. Activity is cancelled.");
 
         var activity = _mapper.Map<Activity>(request.Activity);
         await _activityRepository.Update(activity);
-        return Unit.Value;
+
+        var updatedActivity = await _activityRepository.GetById(id: activity.Id);
+        return updatedActivity;
     }
 }

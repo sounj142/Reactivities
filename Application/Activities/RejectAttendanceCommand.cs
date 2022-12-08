@@ -5,17 +5,17 @@ using MediatR;
 
 namespace Application.Activities;
 
-public class RejectActivityCommand : IRequest
+public class RejectAttendanceCommand : IRequest
 {
     public Guid Id { get; set; }
 }
 
-public class RejectActivityCommandHandler : IRequestHandler<RejectActivityCommand>
+public class RejectAttendanceCommandHandler : IRequestHandler<RejectAttendanceCommand>
 {
     private readonly IActivityRepository _activityRepository;
     private readonly ICurrentUserContext _currentUserContext;
 
-    public RejectActivityCommandHandler(
+    public RejectAttendanceCommandHandler(
         IActivityRepository activityRepository,
         ICurrentUserContext currentUserContext)
     {
@@ -23,7 +23,7 @@ public class RejectActivityCommandHandler : IRequestHandler<RejectActivityComman
         _currentUserContext = currentUserContext;
     }
 
-    public async Task<Unit> Handle(RejectActivityCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(RejectAttendanceCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserContext.GetCurrentUserId();
         var activity = await _activityRepository.GetById(request.Id);

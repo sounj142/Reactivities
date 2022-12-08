@@ -1,7 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
-import { Button, Header, Item, Segment, Image } from 'semantic-ui-react';
+import { Button, Header, Item, Segment, Image, Label } from 'semantic-ui-react';
 import Activity from '../../../models/Activity';
+import { useStore } from '../../../stores/store';
 import { formatDate, getImageUrl } from '../../../utils/common';
 
 const activityImageStyle = {
@@ -22,9 +23,33 @@ interface Props {
 }
 
 export default observer(function ActivityDetailedHeader({ activity }: Props) {
+  const {
+    activityStore: {
+      getHostInfo,
+      checkCurrentUserIsHostOf,
+      checkCurrentUserJoinActivity,
+      acceptAttendance,
+      rejectAttendance,
+      cancelActivity,
+      reactivateActivity,
+      formSubmitting,
+    },
+  } = useStore();
+  const hostUser = getHostInfo(activity);
+  const isActivityHost = checkCurrentUserIsHostOf(activity);
+  const attendeed = !!checkCurrentUserJoinActivity(activity);
+
   return (
     <Segment.Group>
       <Segment basic attached='top' style={{ padding: '0' }}>
+        {activity.isCancelled && (
+          <Label
+            ribbon
+            color='red'
+            style={{ position: 'absolute', zIndex: 1000, left: -14, top: 20 }}
+            content='Cancelled'
+          />
+        )}
         <Image
           src={getImageUrl(activity.category)}
           fluid
@@ -41,7 +66,12 @@ export default observer(function ActivityDetailedHeader({ activity }: Props) {
                 />
                 <p>{formatDate(activity.date)}</p>
                 <p>
-                  Hosted by <strong>Bob</strong>
+                  Hosted by{' '}
+                  <strong>
+                    <Link to={`/profiles/${hostUser?.userName}`}>
+                      {hostUser?.displayName}
+                    </Link>
+                  </strong>
                 </p>
               </Item.Content>
             </Item>
@@ -49,16 +79,59 @@ export default observer(function ActivityDetailedHeader({ activity }: Props) {
         </Segment>
       </Segment>
       <Segment clearing attached='bottom'>
-        <Button color='teal'>Join Activity</Button>
-        <Button>Cancel attendance</Button>
-        <Button
-          color='orange'
-          floated='right'
-          as={Link}
-          to={`/activities/${activity.id}/edit`}
-        >
-          Manage Event
-        </Button>
+        {isActivityHost ? (
+          <>
+            {activity.isCancelled ? (
+              <Button
+                color='green'
+                floated='left'
+                basic
+                loading={formSubmitting}
+                disabled={formSubmitting}
+                onClick={() => reactivateActivity(activity)}
+              >
+                Re-Activate Activity
+              </Button>
+            ) : (
+              <Button
+                color='red'
+                floated='left'
+                basic
+                loading={formSubmitting}
+                disabled={formSubmitting}
+                onClick={() => cancelActivity(activity)}
+              >
+                Cancel Activity
+              </Button>
+            )}
+            <Button
+              color='orange'
+              floated='right'
+              as={Link}
+              to={`/activities/${activity.id}/edit`}
+              disabled={activity.isCancelled}
+            >
+              Manage Event
+            </Button>
+          </>
+        ) : attendeed ? (
+          <Button
+            loading={formSubmitting}
+            disabled={formSubmitting}
+            onClick={() => rejectAttendance(activity)}
+          >
+            Cancel Attendance
+          </Button>
+        ) : (
+          <Button
+            color='teal'
+            loading={formSubmitting}
+            disabled={formSubmitting || activity.isCancelled}
+            onClick={() => acceptAttendance(activity)}
+          >
+            Join Activity
+          </Button>
+        )}
       </Segment>
     </Segment.Group>
   );

@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import ActivityAttendee from './ActivityAttendee';
 
 interface ActivityCommonProps {
   id: string;
@@ -11,6 +12,8 @@ interface ActivityCommonProps {
 
 export default interface Activity extends ActivityCommonProps {
   date: Date;
+  isCancelled: boolean;
+  attendees: ActivityAttendee[];
 }
 
 export interface ActivityModel extends ActivityCommonProps {
@@ -26,5 +29,26 @@ export function emptyActivity(): ActivityModel {
     category: '',
     city: '',
     venue: '',
+  };
+}
+
+export function mapToActivity(model: ActivityModel): Activity {
+  return {
+    ...model,
+    date: model.date!,
+    isCancelled: false,
+    attendees: [],
+  };
+}
+
+export function mapToActivityModel(model: Activity): ActivityModel {
+  return {
+    id: model.id,
+    title: model.title,
+    date: model.date,
+    description: model.description,
+    category: model.category,
+    city: model.city,
+    venue: model.venue,
   };
 }

@@ -5,6 +5,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import Activity, {
   ActivityModel,
   emptyActivity,
+  mapToActivityModel,
 } from '../../../models/Activity';
 import { useStore } from '../../../stores/store';
 import Loading from '../../../app/layouts/Loading';
@@ -46,12 +47,18 @@ export default observer(function ActivityForm() {
 
   useEffect(() => {
     if (activityStore.selectedActivity?.id !== id) {
-      activityStore.changeActivity(undefined);
+      activityStore.changeSelectedActivity(undefined);
     }
     if (id) {
-      activityStore.loadActivity(id).then(() => {
-        setInitialActivity({ ...activityStore.selectedActivity! });
-      });
+      if (activityStore.selectedActivity?.id === id) {
+        setInitialActivity(mapToActivityModel(activityStore.selectedActivity));
+      } else {
+        activityStore.loadActivity(id).then(() => {
+          setInitialActivity(
+            mapToActivityModel(activityStore.selectedActivity!)
+          );
+        });
+      }
     }
   }, [activityStore, id]);
 

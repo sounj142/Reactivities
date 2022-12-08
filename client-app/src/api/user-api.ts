@@ -5,7 +5,7 @@ import { requests } from './agent';
 
 const basePath = '/account';
 const userApis = {
-  getCurrentUser: () => requests.get<UserDto>(`${basePath}/current-user`),
+  getCurrentUserInfo: () => requests.get<UserDto>(`${basePath}/current-user`),
   login: (loginModel: LoginDto) =>
     requests.post<LoginDto, UserDto>(
       `${basePath}/login`,

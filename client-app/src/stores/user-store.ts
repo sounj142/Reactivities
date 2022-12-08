@@ -33,9 +33,4 @@ export default class UserStore {
     const user = await userApis.register(registerModel);
     this.setUser(user);
   };
-
-  getCurrentUser = async () => {
-    const user = await userApis.getCurrentUser();
-    this.setUser(user);
-  };
 }

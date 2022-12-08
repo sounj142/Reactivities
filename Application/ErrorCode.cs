@@ -15,6 +15,7 @@ public class ErrorCode
     public const string APP0011 = "_APP0011";
     public const string APP0013 = "_APP0013";
     public const string APP0014 = "_APP0014";
+    public const string APP0015 = "_APP0015";
     // user don't have permission to edit activity
     public const string APP_DONT_HAVE_EDIT_PERMISSION = "_APP_DONT_HAVE_EDIT_PERMISSION";
 }

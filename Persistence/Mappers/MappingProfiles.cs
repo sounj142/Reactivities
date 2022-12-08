@@ -12,6 +12,8 @@ public class MappingProfiles : Profile
             .ReverseMap();
         CreateMap<ActivityAttendee, ActivityAttendeeDao>()
             .ReverseMap();
+        CreateMap<Attendee, ActivityAttendeeDao>()
+            .ReverseMap();
         CreateMap<ActivityDao, ActivityWithAttendees>();
         CreateMap<ActivityAttendeeDao, Attendee>()
             .ForMember(x => x.Email, x => x.MapFrom(q => q.User.Email))
