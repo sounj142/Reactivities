@@ -58,14 +58,7 @@ public class ActivitiesController : BaseApiController
     [HttpPut]
     public async Task<ActionResult> Update(ActivityDto activity)
     {
-        try
-        {
-            await Mediator.Send(new UpdateActivityCommand { Activity = activity });
-        }
-        catch (FrameworkException ex) when (ex.ErrorCode == Application.ErrorCode.APP_DONT_HAVE_EDIT_PERMISSION)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
-        }
+        await Mediator.Send(new UpdateActivityCommand { Activity = activity });
         return Ok();
     }
 }
