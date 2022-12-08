@@ -1,5 +1,4 @@
 using MediatR;
-using AutoMapper;
 using Domain.Repositories;
 using Domain;
 

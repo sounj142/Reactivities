@@ -32,8 +32,17 @@ function handle400Response(data: any, config: AxiosRequestConfig<{}>) {
   toast.error(errorMessage);
 }
 
+function handleGenericResponse(data: any) {
+  const error = typeof data === 'string' ? data : 'Unauthorized.';
+  toast.error(error);
+}
+
 function handle401Response(data: any) {
-  toast.error('Unauthorized.');
+  handleGenericResponse(data);
+}
+
+function handle403Response(data: any) {
+  handleGenericResponse(data);
 }
 
 function handle404Response(data: any) {
@@ -98,6 +107,9 @@ axios.interceptors.response.use(
         break;
       case 401:
         handle401Response(data);
+        break;
+      case 403:
+        handle403Response(data);
         break;
       case 404:
         handle404Response(data);

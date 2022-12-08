@@ -6,9 +6,13 @@ public interface IActivityRepository
 
     Task<IList<ActivityWithAttendees>> GetAll();
 
-    Task Create(Activity activity, ActivityAttendee userInfo);
+    Task Create(Activity activity, string userId, DateTimeOffset dateJoined);
 
     Task Update(Activity activity);
 
-    Task Delete(Guid id);
+    Task SignIn(Guid activityId, string userId, DateTimeOffset dateJoined);
+
+    Task Reject(Guid activityId, string userId);
+
+    Task Cancel(Guid activityId);
 }

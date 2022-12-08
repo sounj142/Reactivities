@@ -37,14 +37,7 @@ public class CreateActivityCommandHandler : IRequestHandler<CreateActivityComman
         _logger.LogInformation("Creating activity Id '{@Id}', title '{@Title}'", request.Activity.Id, request.Activity.Title);
 
         var activity = _mapper.Map<Activity>(request.Activity);
-        var userInfo = new ActivityAttendee
-        {
-            DateJoined = DateTimeOffset.Now,
-            IsHost = true,
-            ActivityId = activity.Id,
-            UserId = _currentUserContext.GetCurrentUserId()
-        };
-        await _activityRepository.Create(activity, userInfo);
+        await _activityRepository.Create(activity, _currentUserContext.GetCurrentUserId(), DateTimeOffset.Now);
         return Unit.Value;
     }
 }

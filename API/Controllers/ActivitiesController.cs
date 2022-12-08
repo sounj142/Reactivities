@@ -1,6 +1,7 @@
 using Application.Activities;
 using Application.Activities.Dtos;
 using Domain;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -26,17 +27,38 @@ public class ActivitiesController : BaseApiController
         return Ok();
     }
 
-    [HttpPut]
-    public async Task<ActionResult> Update(ActivityDto activity)
+    [HttpPost("{id}/signin")]
+    public async Task<ActionResult> SignIn(Guid id)
     {
-        await Mediator.Send(new UpdateActivityCommand { Activity = activity });
+        await Mediator.Send(new SignInActivityCommand { Id = id });
         return Ok();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [HttpPost("{id}/reject")]
+    public async Task<ActionResult> Reject(Guid id)
     {
-        await Mediator.Send(new DeleteActivityCommand { Id = id });
+        await Mediator.Send(new RejectActivityCommand { Id = id });
+        return Ok();
+    }
+
+    [HttpPost("{id}/cancel")]
+    public async Task<ActionResult> Cancel(Guid id)
+    {
+        await Mediator.Send(new CancelActivityCommand { Id = id });
+        return Ok();
+    }
+
+    [HttpPut]
+    public async Task<ActionResult> Update(ActivityDto activity)
+    {
+        try
+        {
+            await Mediator.Send(new UpdateActivityCommand { Activity = activity });
+        }
+        catch (FrameworkException ex) when (ex.ErrorCode == Application.ErrorCode.APP_DONT_HAVE_EDIT_PERMISSION)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
+        }
         return Ok();
     }
 }

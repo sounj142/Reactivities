@@ -1,7 +1,9 @@
 using Application.Activities.Dtos;
 using AutoMapper;
 using Domain;
+using Domain.Exceptions;
 using Domain.Repositories;
+using Domain.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -14,23 +16,28 @@ public class UpdateActivityCommand : IRequest
 
 public class UpdateActivityCommandHandler : IRequestHandler<UpdateActivityCommand>
 {
-    private readonly ILogger<UpdateActivityCommandHandler> _logger;
     private readonly IActivityRepository _activityRepository;
+    private readonly ICurrentUserContext _currentUserContext;
     private readonly IMapper _mapper;
 
     public UpdateActivityCommandHandler(
-        ILogger<UpdateActivityCommandHandler> logger,
         IActivityRepository activityRepository,
+        ICurrentUserContext currentUserContext,
         IMapper mapper)
     {
-        _logger = logger;
         _activityRepository = activityRepository;
+        _currentUserContext = currentUserContext;
         _mapper = mapper;
     }
 
     public async Task<Unit> Handle(UpdateActivityCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Updating activity Id '{@Id}', title '{@Title}'", request.Activity.Id, request.Activity.Title);
+        var currentActivity = await _activityRepository.GetById(request.Activity.Id);
+        if (currentActivity == null)
+            throw new NotFoundException(ErrorCode.APP0009, "Update rejected. Activity is not found.");
+        var userId = _currentUserContext.GetCurrentUserId();
+        if (!currentActivity.Attendees.Any(x => x.IsHost && x.UserId == userId))
+            throw new NotFoundException(ErrorCode.APP_DONT_HAVE_EDIT_PERMISSION, "You don't have permission to edit this activity.");
 
         var activity = _mapper.Map<Activity>(request.Activity);
         await _activityRepository.Update(activity);
