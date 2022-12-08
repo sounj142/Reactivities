@@ -48,6 +48,13 @@ public class ActivitiesController : BaseApiController
         return Ok();
     }
 
+    [HttpPost("{id}/reactivate")]
+    public async Task<ActionResult> Reactivate(Guid id)
+    {
+        await Mediator.Send(new ReactivateActivityCommand { Id = id });
+        return Ok();
+    }
+
     [HttpPut]
     public async Task<ActionResult> Update(ActivityDto activity)
     {

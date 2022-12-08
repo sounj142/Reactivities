@@ -32,6 +32,8 @@ public class SignInActivityCommandHandler : IRequestHandler<SignInActivityComman
             throw new NotFoundException(ErrorCode.APP0001, "Attendance rejected. Activity is not found.");
         if (activity.Attendees.Any(x => x.UserId == userId))
             throw new FrameworkException(ErrorCode.APP0002, "You have already signed in this activity.");
+        if (activity.IsCancelled)
+            throw new FrameworkException(ErrorCode.APP0007, "Attendance rejected. Activity has already canceled.");
 
         await _activityRepository.SignIn(request.Id, userId, DateTimeOffset.Now); 
         return Unit.Value;

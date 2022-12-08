@@ -13,9 +13,6 @@ public class ActivityRepository : IActivityRepository
     private readonly DataContext _dbContext;
     private readonly IMapper _mapper;
 
-    private IQueryable<ActivityDao> ActiveActivities
-        => _dbContext.Activities.Where(a => !a.IsCancelled);
-
     public ActivityRepository(DataContext dbContext, IMapper mapper)
     {
         _dbContext = dbContext;
@@ -24,7 +21,7 @@ public class ActivityRepository : IActivityRepository
 
     public async Task<ActivityWithAttendees> GetById(Guid id, bool throwIfNotFound = false)
     {
-        var activity = await ActiveActivities.AsNoTracking()
+        var activity = await _dbContext.Activities.AsNoTracking()
             .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(p => p.Id == id);
         if (throwIfNotFound && activity == null)
@@ -35,7 +32,7 @@ public class ActivityRepository : IActivityRepository
 
     public async Task<IList<ActivityWithAttendees>> GetAll()
     {
-        var activities = await ActiveActivities.AsNoTracking()
+        var activities = await _dbContext.Activities.AsNoTracking()
             .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider)
             .ToListAsync();
         return activities;
@@ -59,7 +56,7 @@ public class ActivityRepository : IActivityRepository
 
     public async Task Update(Activity activity)
     {
-        var activityDao = await ActiveActivities
+        var activityDao = await _dbContext.Activities
             .FirstOrDefaultAsync(x => x.Id == activity.Id);
         if (activityDao == null)
             throw new NotFoundException(ErrorCode.REPO0001, "Update rejected. Activity is not found.");
@@ -94,7 +91,7 @@ public class ActivityRepository : IActivityRepository
 
     public async Task Cancel(Guid activityId)
     {
-        var activity = await ActiveActivities
+        var activity = await _dbContext.Activities
              .FirstOrDefaultAsync(x => x.Id == activityId);
         if (activity == null)
             throw new NotFoundException(ErrorCode.REPO0002, "Cancellation rejected. Activity is not found.");

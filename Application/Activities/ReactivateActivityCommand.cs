@@ -5,17 +5,17 @@ using MediatR;
 
 namespace Application.Activities;
 
-public class CancelActivityCommand : IRequest
+public class ReactivateActivityCommand : IRequest
 {
     public Guid Id { get; set; }
 }
 
-public class CancelActivityCommandHandler : IRequestHandler<CancelActivityCommand>
+public class ReactivateActivityCommandHandler : IRequestHandler<ReactivateActivityCommand>
 {
     private readonly IActivityRepository _activityRepository;
     private readonly ICurrentUserContext _currentUserContext;
 
-    public CancelActivityCommandHandler(
+    public ReactivateActivityCommandHandler(
         IActivityRepository activityRepository,
         ICurrentUserContext currentUserContext)
     {
@@ -23,18 +23,18 @@ public class CancelActivityCommandHandler : IRequestHandler<CancelActivityComman
         _currentUserContext = currentUserContext;
     }
 
-    public async Task<Unit> Handle(CancelActivityCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(ReactivateActivityCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserContext.GetCurrentUserId();
         var activity = await _activityRepository.GetById(request.Id);
 
         if (activity == null)
-            throw new NotFoundException(ErrorCode.APP0006, "Cancellation rejected. Activity is not found.");
+            throw new NotFoundException(ErrorCode.APP0011, "Reactivation rejected. Activity is not found.");
         var attendee = activity.Attendees.FirstOrDefault(x => x.UserId == userId);
         if (attendee == null || !attendee.IsHost)
-            throw new FrameworkException(ErrorCode.APP0008, "You can't cancel this activity because you aren't its host.");
-        if (activity.IsCancelled)
-            throw new FrameworkException(ErrorCode.APP0010, "Activity has already canceled.");
+            throw new FrameworkException(ErrorCode.APP0013, "You can't cancel this activity because you aren't its host.");
+        if (!activity.IsCancelled)
+            throw new FrameworkException(ErrorCode.APP0014, "Reactivation rejected. Activity is still active.");
 
         await _activityRepository.Cancel(request.Id);
         return Unit.Value;
