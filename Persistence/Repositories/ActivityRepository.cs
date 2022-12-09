@@ -78,7 +78,7 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync();
 
         var activityAttendee = _dbContext.ActivityAttendees
-            .Include(x => x.User)
+            .ProjectTo<Attendee>(_mapper.ConfigurationProvider)
             .FirstOrDefault(x => x.UserId == userId && x.ActivityId == activityId);
         return _mapper.Map<Attendee>(activityAttendee);
     }
