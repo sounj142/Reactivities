@@ -1,3 +1,5 @@
+using Domain.Activities;
+
 namespace Domain.Repositories;
 
 public interface IActivityRepository

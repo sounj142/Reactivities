@@ -1,6 +1,7 @@
 using Application.Activities.Dtos;
 using AutoMapper;
 using Domain;
+using Domain.Activities;
 using Domain.Repositories;
 using Domain.Services;
 using MediatR;

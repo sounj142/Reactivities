@@ -2,6 +2,11 @@ namespace API.Utils;
 
 public static class ErrorCode
 {
-    public const string VALIDATION_ERROR = "_VALIDATION_ERROR";
-    public const string UNKNOWN_ERROR = "_UNKNOWN_ERROR";
+    public static readonly string VALIDATION_ERROR;
+    public static readonly string UNKNOWN_ERROR;
+
+    static ErrorCode()
+    {
+        Domain.Helpers.InitializeErrorCodeValues(typeof(ErrorCode));
+    }
 }

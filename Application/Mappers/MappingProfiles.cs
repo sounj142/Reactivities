@@ -1,6 +1,6 @@
 using Application.Activities.Dtos;
 using AutoMapper;
-using Domain;
+using Domain.Activities;
 
 namespace Application.Mappers;
 

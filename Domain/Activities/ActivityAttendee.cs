@@ -1,4 +1,4 @@
-namespace Domain;
+namespace Domain.Activities;
 
 public class ActivityAttendee
 {

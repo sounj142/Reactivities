@@ -8,6 +8,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
 {
     public DbSet<ActivityDao> Activities { get; set; }
     public DbSet<ActivityAttendeeDao> ActivityAttendees { get; set; }
+    public DbSet<PhotoDao> Photos { get; set; }
 
     public DataContext(DbContextOptions options) : base(options)
     {
@@ -19,6 +20,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
         ConfigActivity(builder);
         ConfigAppUser(builder);
         ConfigActivityAttendee(builder);
+        ConfigPhoto(builder);
     }
 
     private void ConfigActivity(ModelBuilder builder)
@@ -63,6 +65,22 @@ public class DataContext : IdentityDbContext<AppUserDao>
                 .HasForeignKey(t => t.ActivityId);
             options.HasOne(t => t.User)
                 .WithMany(t => t.Activities)
+                .HasForeignKey(t => t.UserId);
+        });
+    }
+
+    private void ConfigPhoto(ModelBuilder builder)
+    {
+        builder.Entity<PhotoDao>(options =>
+        {
+            options.Property(t => t.Id)
+                .IsRequired()
+                .HasMaxLength(40);
+            options.Property(t => t.Url)
+                .IsRequired()
+                .HasMaxLength(300);
+            options.HasOne(t => t.User)
+                .WithMany(t => t.Photos)
                 .HasForeignKey(t => t.UserId);
         });
     }

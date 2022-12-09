@@ -5,6 +5,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Daos;
+using Domain.Activities;
 
 namespace Persistence.Repositories;
 
@@ -110,7 +111,7 @@ public class ActivityRepository : IActivityRepository
         var activity = await _dbContext.Activities
              .FirstOrDefaultAsync(x => x.Id == activityId);
         if (activity == null)
-            throw new NotFoundException(ErrorCode.REPO0002, "Cancellation rejected. Activity is not found.");
+            throw new NotFoundException(ErrorCode.REPO0005, "Cancellation rejected. Activity is not found.");
 
         activity.IsCancelled = false;
         await _dbContext.SaveChangesAsync();

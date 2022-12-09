@@ -8,4 +8,5 @@ public class AppUserDao : IdentityUser
     public string Bio { get; set; }
 
     public IList<ActivityAttendeeDao> Activities { get; set; }
+    public IList<PhotoDao> Photos { get; set; }
 }

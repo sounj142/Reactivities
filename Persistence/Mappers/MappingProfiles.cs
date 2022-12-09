@@ -1,5 +1,7 @@
 using AutoMapper;
 using Domain;
+using Domain.Activities;
+using Domain.Photos;
 using Persistence.Daos;
 
 namespace Persistence.Mappers;
@@ -20,5 +22,8 @@ public class MappingProfiles : Profile
             .ForMember(x => x.UserName, x => x.MapFrom(q => q.User.UserName))
             .ForMember(x => x.DisplayName, x => x.MapFrom(q => q.User.DisplayName))
             .ForMember(x => x.Bio, x => x.MapFrom(q => q.User.Bio));
+        CreateMap<Photo, PhotoDao>()
+            .ReverseMap();
+        CreateMap<AppUserDao, UserProfile>();
     }
 }
