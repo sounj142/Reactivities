@@ -5,7 +5,7 @@ using Domain.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Activities;
+namespace Application.Photos;
 
 public class UploadPhotoCommand : IRequest<Photo>
 {

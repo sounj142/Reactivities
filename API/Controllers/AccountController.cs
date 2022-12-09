@@ -2,10 +2,12 @@ using API.Identity;
 using API.Identity.Dtos;
 using API.Utils;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Daos;
 
 namespace API.Controllers;
@@ -32,10 +34,12 @@ public class AccountController : BaseApiController
         _userManager = userManager;
     }
 
-    private UserDto CreateUserDto(AppUserDao user)
+    private async Task<UserDto> CreateUserDto(string userId)
     {
-        var userDto = _mapper.Map<UserDto>(user);
-        userDto.Token = _tokenService.CreateToken(user);
+        var userDto = await _userManager.Users.AsNoTracking()
+            .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(x => x.Id == userId);
+        userDto.Token = _tokenService.CreateToken(userDto);
         return userDto;
     }
 
@@ -52,7 +56,7 @@ public class AccountController : BaseApiController
         if (!loginResult.Succeeded)
             return BadRequest(invalidMessage);
 
-        return CreateUserDto(user);
+        return await CreateUserDto(user.Id);
     }
 
     [HttpPost("register")]
@@ -74,13 +78,12 @@ public class AccountController : BaseApiController
             return BadRequest(errorResponse);
         }
 
-        return CreateUserDto(user);
+        return await CreateUserDto(user.Id);
     }
 
     [HttpGet("current-user")]
     public async Task<ActionResult<UserDto>> GetCurrentUser()
     {
-        var user = await _userManager.FindByEmailAsync(_currentUserContext.GetCurrentUserEmail());
-        return CreateUserDto(user);
+        return await CreateUserDto(_currentUserContext.GetCurrentUserId());
     }
 }

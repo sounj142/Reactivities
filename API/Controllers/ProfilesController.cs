@@ -1,4 +1,5 @@
-using Application.Activities;
+using Application.Photos;
+using Application.Profiles;
 using Domain.Photos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,5 +29,18 @@ public class ProfilesController : BaseApiController
     {
         await Mediator.Send(new DeletePhotoCommand { Id = photoId });
         return Ok();
+    }
+
+    [HttpPut("set-main-photo/{photoId}")]
+    public async Task<ActionResult> SetMainPhoto(string photoId)
+    {
+        await Mediator.Send(new SetMainPhotoCommand { Id = photoId });
+        return Ok();
+    }
+
+    [HttpGet("{userName}")]
+    public async Task<ActionResult<UserProfile>> GetProfile(string userName)
+    {
+        return Ok(await Mediator.Send(new GetUserProfileQuery { UserName = userName }));
     }
 }

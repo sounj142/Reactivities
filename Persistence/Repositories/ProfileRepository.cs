@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain.Exceptions;
 using Domain.Photos;
 using Domain.Repositories;
@@ -20,10 +21,20 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<UserProfile> GetUserProfile(string userId)
     {
-        var user = await _dbContext.Users.Include(x => x.Photos)
-            .AsNoTracking()
+        var user = await _dbContext.Users.AsNoTracking()
+            .ProjectTo<UserProfile>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(x => x.Id == userId);
-        return _mapper.Map<UserProfile>(user);
+        return user;
+    }
+
+    public async Task<UserProfile> GetUserProfileByUserName(string userName)
+    {
+        userName = userName?.ToUpper();
+        var user = await _dbContext.Users.AsNoTracking()
+            .Where(u => u.NormalizedUserName == userName)
+            .ProjectTo<UserProfile>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+        return user;
     }
 
     public async Task<Photo> CreatePhoto(string id, string url, string userId, bool isMain)
@@ -48,6 +59,20 @@ public class ProfileRepository : IProfileRepository
             throw new NotFoundException(ErrorCode.REPO0006, "Deletion rejected. Photo is not found.");
 
         _dbContext.Photos.Remove(photo);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task SetMainPhoto(string photoId, string userId)
+    {
+        var photos = await _dbContext.Photos
+            .Where(x => x.UserId == userId).ToListAsync();
+
+        var photo = photos.FirstOrDefault(p => p.Id == photoId);
+        if (photo == null)
+            throw new FrameworkException(ErrorCode.REPO0007, "Photo is not belong to current user.");
+
+        photos.ForEach(p => p.IsMain = false);
+        photo.IsMain = true;
         await _dbContext.SaveChangesAsync();
     }
 }

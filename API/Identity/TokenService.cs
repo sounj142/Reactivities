@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+using API.Identity.Dtos;
 using Microsoft.IdentityModel.Tokens;
-using Persistence.Daos;
 
 namespace API.Identity;
 
@@ -19,7 +15,7 @@ public class TokenService
         _configuration = configuration;
     }
 
-    public string CreateToken(AppUserDao user)
+    public string CreateToken(UserDto user)
     {
         var claims = new List<Claim>
         {

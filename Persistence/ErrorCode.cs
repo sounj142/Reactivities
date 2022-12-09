@@ -10,6 +10,7 @@ public static class ErrorCode
     public static readonly string REPO0004;
     public static readonly string REPO0005;
     public static readonly string REPO0006;
+    public static readonly string REPO0007;
 
     static ErrorCode()
     {

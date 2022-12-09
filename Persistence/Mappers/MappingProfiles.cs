@@ -14,14 +14,14 @@ public class MappingProfiles : Profile
             .ReverseMap();
         CreateMap<ActivityAttendee, ActivityAttendeeDao>()
             .ReverseMap();
-        CreateMap<Attendee, ActivityAttendeeDao>()
-            .ReverseMap();
         CreateMap<ActivityDao, ActivityWithAttendees>();
         CreateMap<ActivityAttendeeDao, Attendee>()
             .ForMember(x => x.Email, x => x.MapFrom(q => q.User.Email))
             .ForMember(x => x.UserName, x => x.MapFrom(q => q.User.UserName))
             .ForMember(x => x.DisplayName, x => x.MapFrom(q => q.User.DisplayName))
-            .ForMember(x => x.Bio, x => x.MapFrom(q => q.User.Bio));
+            .ForMember(x => x.Bio, x => x.MapFrom(q => q.User.Bio))
+            .ForMember(x => x.Image, g =>
+                g.MapFrom(q => q.User.Photos.FirstOrDefault(p => p.IsMain).Url));
         CreateMap<Photo, PhotoDao>()
             .ReverseMap();
         CreateMap<AppUserDao, UserProfile>();

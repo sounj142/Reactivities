@@ -20,6 +20,10 @@ public class ErrorCode
     public static readonly string APP0016;
     public static readonly string APP0017;
     public static readonly string APP0018;
+    public static readonly string APP0019;
+    public static readonly string APP0020;
+    public static readonly string APP0021;
+    public static readonly string APP0022;
     // user don't have permission to edit activity
     public static readonly string APP_DONT_HAVE_EDIT_PERMISSION;
 
