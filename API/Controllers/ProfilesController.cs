@@ -46,7 +46,7 @@ public class ProfilesController : BaseApiController
         return Ok(await Mediator.Send(new GetUserProfileQuery { UserName = userName }));
     }
 
-    [HttpPost("update-about")]
+    [HttpPut("update-about")]
     public async Task<ActionResult> UpdateProfileAbout(UserAboutDto model)
     {
         await Mediator.Send(new UpdateUserAboutCommand { About = model });

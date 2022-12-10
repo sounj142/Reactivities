@@ -4,6 +4,7 @@ import activityApis from '../api/activity-api';
 import Activity, { ActivityModel } from '../models/Activity';
 import { formatDate } from '../utils/common';
 import { store } from './store';
+import { UserAbout } from '../models/UserProfile';
 
 export default class ActivityStore {
   private activities: Activity[] = [];
@@ -174,7 +175,10 @@ export default class ActivityStore {
     });
   };
 
-  private updateUserPhoto = (activity: Activity | undefined, user: UserDto) => {
+  private updateUserPhotoOfActivity = (
+    activity: Activity | undefined,
+    user: UserDto
+  ) => {
     if (!activity) return;
     activity.attendees.forEach((attendee) => {
       if (attendee.userName === user.userName) {
@@ -186,7 +190,36 @@ export default class ActivityStore {
   updateActivitiesMainPhoto = () => {
     const user = store.userStore.user;
     if (!user) return;
-    this.updateUserPhoto(this.selectedActivity, user);
-    this.activities.forEach((activity) => this.updateUserPhoto(activity, user));
+    this.updateUserPhotoOfActivity(this.selectedActivity, user);
+    this.activities.forEach((activity) =>
+      this.updateUserPhotoOfActivity(activity, user)
+    );
+  };
+
+  private updateProfileAboutOfActivity = (
+    activity: Activity | undefined,
+    data: UserAbout,
+    userName: string
+  ) => {
+    if (!activity) return;
+    activity.attendees.forEach((attendee) => {
+      if (attendee.userName === userName) {
+        attendee.displayName = data.displayName;
+        attendee.bio = data.bio;
+      }
+    });
+  };
+
+  updateProfileAbout = (data: UserAbout) => {
+    const user = store.userStore.user;
+    if (!user) return;
+    this.updateProfileAboutOfActivity(
+      this.selectedActivity,
+      data,
+      user.userName
+    );
+    this.activities.forEach((activity) =>
+      this.updateProfileAboutOfActivity(activity, data, user.userName)
+    );
   };
 }

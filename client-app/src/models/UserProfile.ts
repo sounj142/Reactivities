@@ -1,11 +1,14 @@
 import { Photo } from './Photo';
 
-export interface UserProfile {
+export interface UserAbout {
+  displayName: string;
+  bio?: string;
+}
+
+export interface UserProfile extends UserAbout {
   id: string;
   email: string;
   userName: string;
-  displayName: string;
-  bio?: string;
   image?: string;
   photos: Photo[];
 }

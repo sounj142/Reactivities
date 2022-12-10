@@ -1,6 +1,6 @@
 import { Photo } from './../models/Photo';
-import { UserProfile } from './../models/UserProfile';
-import { makeAutoObservable } from 'mobx';
+import { UserAbout, UserProfile } from './../models/UserProfile';
+import { makeAutoObservable, runInAction } from 'mobx';
 import profileApis from '../api/profile-api';
 import { store } from './store';
 
@@ -97,5 +97,16 @@ export default class ProfileStore {
     } finally {
       this.setProcessingPhoto(false);
     }
+  };
+
+  updateProfileAbout = async (data: UserAbout) => {
+    await profileApis.updateProfileAbout(data);
+    runInAction(() => {
+      if (!this.profile) return;
+      this.profile.displayName = data.displayName;
+      this.profile.bio = data.bio;
+      store.userStore.updateProfileAbout(data);
+      store.activityStore.updateProfileAbout(data);
+    });
   };
 }

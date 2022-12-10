@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import accountApis from '../api/account-api';
 import { LoginDto, RegisterDto, UserDto } from '../models/User';
+import { UserAbout } from '../models/UserProfile';
 
 const tokenKey = 'jwt';
 export default class UserStore {
@@ -39,4 +40,10 @@ export default class UserStore {
     this.user.image = image;
     this.setUser(this.user);
   };
+
+  updateProfileAbout(data: UserAbout) {
+    if (!this.user) return;
+    this.user.displayName = data.displayName;
+    this.setUser(this.user);
+  }
 }

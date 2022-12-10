@@ -56,3 +56,7 @@ body {
 .ui.form .error.message.error-messages {
   display: block;
 }
+
+.display-linebreak {
+  white-space: pre-line;
+}

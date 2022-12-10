@@ -1,6 +1,6 @@
 import { Photo } from '../models/Photo';
 import { UserDto } from '../models/User';
-import { UserProfile } from '../models/UserProfile';
+import { UserAbout, UserProfile } from '../models/UserProfile';
 import { requests } from './agent';
 
 const basePath = '/profiles';
@@ -25,6 +25,8 @@ const profileApis = {
     ),
   deletePhoto: (photoId: string) =>
     requests.delete(`${basePath}/delete-photo/${photoId}`, undefined),
+  updateProfileAbout: (data: UserAbout) =>
+    requests.put<UserAbout, void>(`${basePath}/update-about`, data),
 };
 
 export default profileApis;

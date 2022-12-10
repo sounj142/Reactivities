@@ -11,7 +11,6 @@ public class UserAboutDtoValidator : AbstractValidator<UserAboutDto>
             .MaximumLength(200).WithMessage("Display name must not exceed 200 characters.");
 
         RuleFor(v => v.Bio)
-            .NotEmpty().WithMessage("Bio is required.")
             .MaximumLength(10000).WithMessage("Bio must not exceed 10000 characters.");
     }
 }
