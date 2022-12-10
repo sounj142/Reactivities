@@ -47,8 +47,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
         {
             options.Property(t => t.DisplayName)
                 .HasMaxLength(100);
-            options.Property(t => t.Bio)
-                .HasMaxLength(20);
+            options.Property(t => t.Bio);
         });
     }
 

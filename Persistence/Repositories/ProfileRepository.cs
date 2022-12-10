@@ -75,4 +75,15 @@ public class ProfileRepository : IProfileRepository
         photo.IsMain = true;
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task UpdateUserAboutInfo(string userId, string displayName, string bio)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        if (user == null)
+            throw new NotFoundException(ErrorCode.REPO0008, "User not found.");
+
+        user.DisplayName = displayName;
+        user.Bio = bio;
+        await _dbContext.SaveChangesAsync();
+    }
 }

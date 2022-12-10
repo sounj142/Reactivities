@@ -1,5 +1,7 @@
+using Application.Activities;
 using Application.Photos;
 using Application.Profiles;
+using Application.Profiles.Dtos;
 using Domain.Photos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,5 +44,12 @@ public class ProfilesController : BaseApiController
     public async Task<ActionResult<UserProfileFullInfo>> GetProfile(string userName)
     {
         return Ok(await Mediator.Send(new GetUserProfileQuery { UserName = userName }));
+    }
+
+    [HttpPost("update-about")]
+    public async Task<ActionResult> UpdateProfileAbout(UserAboutDto model)
+    {
+        await Mediator.Send(new UpdateUserAboutCommand { About = model });
+        return Ok();
     }
 }

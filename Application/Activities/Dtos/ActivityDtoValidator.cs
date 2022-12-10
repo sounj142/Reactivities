@@ -1,7 +1,6 @@
 using FluentValidation;
-using Application.Activities.Dtos;
 
-namespace Application.Activities.Validators;
+namespace Application.Activities.Dtos;
 public class ActivityDtoValidator : AbstractValidator<ActivityDto>
 {
     public ActivityDtoValidator()
