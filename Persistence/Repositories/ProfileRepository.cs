@@ -27,12 +27,12 @@ public class ProfileRepository : IProfileRepository
         return user;
     }
 
-    public async Task<UserProfile> GetUserProfileByUserName(string userName)
+    public async Task<UserProfileFullInfo> GetUserProfileByUserName(string userName)
     {
         userName = userName?.ToUpper();
         var user = await _dbContext.Users.AsNoTracking()
             .Where(u => u.NormalizedUserName == userName)
-            .ProjectTo<UserProfile>(_mapper.ConfigurationProvider)
+            .ProjectTo<UserProfileFullInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
         return user;
     }

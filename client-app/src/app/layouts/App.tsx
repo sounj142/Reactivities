@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import NotFound from '../../features/errors/NotFound';
 import ServerSideError from '../../features/errors/ServerSideError';
 import ModalContainer from '../modals/ModalContainer';
+import ProfilePage from '../../features/profiles/ProfilePage';
 
 export default observer(function App() {
   const location = useLocation();
@@ -33,6 +34,7 @@ export default observer(function App() {
                   path='/activities'
                   component={ActivitiesDashboard}
                 />
+
                 <Route
                   exact
                   key={location.key}
@@ -49,6 +51,12 @@ export default observer(function App() {
                   exact
                   path='/activities/:id'
                   component={ActivityDetails}
+                />
+
+                <Route
+                  exact
+                  path='/profiles/:userName'
+                  component={ProfilePage}
                 />
                 <Route
                   exact

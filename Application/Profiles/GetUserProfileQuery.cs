@@ -5,12 +5,12 @@ using Domain.Exceptions;
 
 namespace Application.Profiles;
 
-public class GetUserProfileQuery : IRequest<UserProfile>
+public class GetUserProfileQuery : IRequest<UserProfileFullInfo>
 {
     public string UserName { get; set; }
 }
 
-public class GetUserProfileHandler : IRequestHandler<GetUserProfileQuery, UserProfile>
+public class GetUserProfileHandler : IRequestHandler<GetUserProfileQuery, UserProfileFullInfo>
 {
     private readonly IProfileRepository _profileRepository;
 
@@ -19,7 +19,7 @@ public class GetUserProfileHandler : IRequestHandler<GetUserProfileQuery, UserPr
         _profileRepository = profileRepository;
     }
 
-    public async Task<UserProfile> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
+    public async Task<UserProfileFullInfo> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
     {
         var user = await _profileRepository.GetUserProfileByUserName(request.UserName);
         if (user == null)

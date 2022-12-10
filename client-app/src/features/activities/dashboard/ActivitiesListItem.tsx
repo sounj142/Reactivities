@@ -38,7 +38,7 @@ export default observer(function ActivitiesListItem({ activity }: Props) {
               style={{ marginBottom: 3 }}
               size='tiny'
               circular
-              src='/assets/user.png'
+              src={hostUser?.image || '/assets/user.png'}
             />
             <Item.Content>
               <Item.Header as={Link} to={`/activities/${activity.id}`}>
@@ -46,7 +46,10 @@ export default observer(function ActivitiesListItem({ activity }: Props) {
               </Item.Header>
 
               <Item.Description>
-                Hosted by {hostUser?.displayName}
+                Hosted by{' '}
+                <Link to={`/profiles/${hostUser?.userName}`}>
+                  {hostUser?.displayName}
+                </Link>
               </Item.Description>
 
               {isActivityHost && (

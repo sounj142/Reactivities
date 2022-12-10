@@ -1,3 +1,4 @@
+import { UserDto } from './../models/User';
 import { makeAutoObservable, runInAction } from 'mobx';
 import activityApis from '../api/activity-api';
 import Activity, { ActivityModel } from '../models/Activity';
@@ -87,7 +88,11 @@ export default class ActivityStore {
     this.changeSelectedActivity(activity);
   };
 
-  standardizeActivitisAfterAnActivityChanged = (activity: Activity) => {
+  // only need to call this method if we do one of below action
+  // - add activity
+  // - update activity date
+  // - change activity attendees (add/remove)
+  private standardizeActivitisAfterAnActivityChanged = (activity: Activity) => {
     this.formatActivityData(activity);
     const index = this.activities.findIndex((x) => x.id === activity.id);
     if (index >= 0) this.activities[index] = activity;
@@ -167,5 +172,21 @@ export default class ActivityStore {
         activity.isCancelled = false;
       });
     });
+  };
+
+  private updateUserPhoto = (activity: Activity | undefined, user: UserDto) => {
+    if (!activity) return;
+    activity.attendees.forEach((attendee) => {
+      if (attendee.userName === user.userName) {
+        attendee.image = user.image;
+      }
+    });
+  };
+
+  updateActivitiesMainPhoto = () => {
+    const user = store.userStore.user;
+    if (!user) return;
+    this.updateUserPhoto(this.selectedActivity, user);
+    this.activities.forEach((activity) => this.updateUserPhoto(activity, user));
   };
 }

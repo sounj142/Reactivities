@@ -39,7 +39,7 @@ public class ProfilesController : BaseApiController
     }
 
     [HttpGet("{userName}")]
-    public async Task<ActionResult<UserProfile>> GetProfile(string userName)
+    public async Task<ActionResult<UserProfileFullInfo>> GetProfile(string userName)
     {
         return Ok(await Mediator.Send(new GetUserProfileQuery { UserName = userName }));
     }

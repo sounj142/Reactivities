@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import userApis from '../api/user-api';
+import accountApis from '../api/account-api';
 import { LoginDto, RegisterDto, UserDto } from '../models/User';
 
 const tokenKey = 'jwt';
@@ -14,14 +14,14 @@ export default class UserStore {
     return !!this.user?.token;
   }
 
-  setUser = (user?: UserDto) => {
+  private setUser = (user?: UserDto) => {
     this.user = user;
     if (user) localStorage.setItem(tokenKey, JSON.stringify(user));
     else localStorage.removeItem(tokenKey);
   };
 
   login = async (loginModel: LoginDto) => {
-    const user = await userApis.login(loginModel);
+    const user = await accountApis.login(loginModel);
     this.setUser(user);
   };
 
@@ -30,7 +30,13 @@ export default class UserStore {
   };
 
   register = async (registerModel: RegisterDto) => {
-    const user = await userApis.register(registerModel);
+    const user = await accountApis.register(registerModel);
     this.setUser(user);
+  };
+
+  updateMainPhoto = (image: string) => {
+    if (!this.user) return;
+    this.user.image = image;
+    this.setUser(this.user);
   };
 }

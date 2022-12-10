@@ -6,6 +6,6 @@ export default interface ActivityAttendee {
   email: string;
   userName: string;
   displayName: string;
-  bio: string;
-  image: string;
+  bio?: string;
+  image?: string;
 }

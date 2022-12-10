@@ -25,5 +25,8 @@ public class MappingProfiles : Profile
         CreateMap<Photo, PhotoDao>()
             .ReverseMap();
         CreateMap<AppUserDao, UserProfile>();
+        CreateMap<AppUserDao, UserProfileFullInfo>()
+            .ForMember(x => x.Image, g =>
+                g.MapFrom(q => q.Photos.FirstOrDefault(p => p.IsMain).Url));
     }
 }

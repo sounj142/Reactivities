@@ -9,3 +9,8 @@ public class UserProfile
     public string Bio { get; set; }
     public IList<Photo> Photos { get; set; }
 }
+
+public class UserProfileFullInfo : UserProfile
+{
+    public string Image { get; set; }
+}

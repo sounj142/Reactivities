@@ -1,10 +1,10 @@
-import { LoginDto, RegisterDto } from './../models/User';
+import { LoginDto, RegisterDto } from '../models/User';
 import { UserDto } from '../models/User';
 import { ignoreStatusCodes } from '../utils/axios';
 import { requests } from './agent';
 
 const basePath = '/account';
-const userApis = {
+const accountApis = {
   getCurrentUserInfo: () => requests.get<UserDto>(`${basePath}/current-user`),
   login: (loginModel: LoginDto) =>
     requests.post<LoginDto, UserDto>(
@@ -20,4 +20,4 @@ const userApis = {
     ),
 };
 
-export default userApis;
+export default accountApis;

@@ -28,12 +28,15 @@ function handle400Response(data: any, config: AxiosRequestConfig<{}>) {
     history.push('/not-found');
     return;
   }
-  const errorMessage = getFistErrorMessage(data) ?? 'Bad Request.';
+  const errorMessage =
+    getFistErrorMessage(data) ||
+    (typeof data === 'string' && data.length ? data : 'Bad Request.');
   toast.error(errorMessage);
 }
 
 function handleGenericResponse(data: any) {
-  const error = typeof data === 'string' ? data : 'Unauthorized.';
+  const error =
+    typeof data === 'string' && data.length ? data : 'Unauthorized.';
   toast.error(error);
 }
 
@@ -64,6 +67,9 @@ const sleep = (delay: number) => {
 };
 
 const dateTransformer = (data: any): any => {
+  if (data instanceof FormData) {
+    return data;
+  }
   if (data instanceof Date) {
     // customize date serialition logic - https://stackoverflow.com/questions/70689305/customizing-date-serialization-in-axios
     return toISOStringWithTimezone(data);
