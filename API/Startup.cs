@@ -2,6 +2,7 @@ using Persistence;
 using Application;
 using API.Utils;
 using ImageServices;
+using API.SignalR;
 
 namespace API
 {
@@ -45,6 +46,8 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chat");
+                //    .RequireAuthorization();
             });
         }
     }

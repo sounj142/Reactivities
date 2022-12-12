@@ -1,3 +1,5 @@
+using API.Utils;
+using Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,4 +13,12 @@ public abstract class BaseApiController : ControllerBase
 
     protected IMediator Mediator
         => _mediator ??= HttpContext.RequestServices.GetService<IMediator>();
+
+    protected Guid ParseGuid(string id)
+    {
+        Guid result;
+        if (Guid.TryParse(id, out result))
+            return result;
+        throw new NotFoundException(ErrorCode.INVALID_GUID, "Not Found.");
+    }
 }

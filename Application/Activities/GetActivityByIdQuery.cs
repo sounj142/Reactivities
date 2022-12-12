@@ -1,6 +1,6 @@
 using MediatR;
 using Domain.Repositories;
-using Domain;
+using Domain.Activities;
 
 namespace Application.Activities;
 

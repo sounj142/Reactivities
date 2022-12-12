@@ -1,6 +1,6 @@
 using AutoMapper;
-using Domain;
 using Domain.Activities;
+using Domain.Comments;
 using Domain.Photos;
 using Persistence.Daos;
 
@@ -28,5 +28,12 @@ public class MappingProfiles : Profile
         CreateMap<AppUserDao, UserProfileFullInfo>()
             .ForMember(x => x.Image, g =>
                 g.MapFrom(q => q.Photos.FirstOrDefault(p => p.IsMain).Url));
+
+        CreateMap<Comment, CommentDao>()
+            .ReverseMap();
+        CreateMap<CommentDao, CommentWithAuthor>()
+            .ForMember(x => x.AuthorUserName, g => g.MapFrom(q => q.Author.UserName))
+            .ForMember(x => x.AuthorDisplayName, g => g.MapFrom(q => q.Author.DisplayName))
+            .ForMember(x => x.AuthorImage, g => g.MapFrom(q => q.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
     }
 }

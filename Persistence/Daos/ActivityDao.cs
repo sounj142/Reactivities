@@ -12,4 +12,5 @@ public class ActivityDao
     public bool IsCancelled { get; set; }
 
     public IList<ActivityAttendeeDao> Attendees { get; set; }
+    public IList<CommentDao> Comments { get; set; }
 }

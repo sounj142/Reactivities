@@ -1,7 +1,6 @@
 using Application.Activities;
 using Application.Activities.Dtos;
-using Domain;
-using Domain.Exceptions;
+using Domain.Activities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -15,9 +14,9 @@ public class ActivitiesController : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActivityWithAttendees> Get(Guid id)
+    public async Task<ActivityWithAttendees> Get(string id)
     {
-        return await Mediator.Send(new GetActivityByIdQuery { Id = id });
+        return await Mediator.Send(new GetActivityByIdQuery { Id = ParseGuid(id) });
     }
 
     [HttpPost]
@@ -35,30 +34,30 @@ public class ActivitiesController : BaseApiController
     }
 
     [HttpPost("{id}/accept")]
-    public async Task<ActionResult<Attendee>> Accept(Guid id)
+    public async Task<ActionResult<Attendee>> Accept(string id)
     {
-        var atendee = await Mediator.Send(new AcceptActivityCommand { Id = id });
+        var atendee = await Mediator.Send(new AcceptActivityCommand { Id = ParseGuid(id) });
         return Ok(atendee);
     }
 
     [HttpPost("{id}/reject")]
-    public async Task<ActionResult> Reject(Guid id)
+    public async Task<ActionResult> Reject(string id)
     {
-        await Mediator.Send(new RejectAttendanceCommand { Id = id });
+        await Mediator.Send(new RejectAttendanceCommand { Id = ParseGuid(id) });
         return Ok();
     }
 
     [HttpPost("{id}/cancel")]
-    public async Task<ActionResult> Cancel(Guid id)
+    public async Task<ActionResult> Cancel(string id)
     {
-        await Mediator.Send(new CancelActivityCommand { Id = id });
+        await Mediator.Send(new CancelActivityCommand { Id = ParseGuid(id) });
         return Ok();
     }
 
     [HttpPost("{id}/reactivate")]
-    public async Task<ActionResult> Reactivate(Guid id)
+    public async Task<ActionResult> Reactivate(string id)
     {
-        await Mediator.Send(new ReactivateActivityCommand { Id = id });
+        await Mediator.Send(new ReactivateActivityCommand { Id = ParseGuid(id) });
         return Ok();
     }
 }

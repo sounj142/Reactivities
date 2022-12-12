@@ -9,4 +9,5 @@ public class AppUserDao : IdentityUser
 
     public IList<ActivityAttendeeDao> Activities { get; set; }
     public IList<PhotoDao> Photos { get; set; }
+    public IList<CommentDao> Comments { get; set; }
 }

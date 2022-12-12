@@ -1,6 +1,4 @@
-using Domain.Activities;
-
-namespace Domain;
+namespace Domain.Activities;
 
 public class ActivityWithAttendees : Activity
 {

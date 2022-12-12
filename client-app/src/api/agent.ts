@@ -6,7 +6,7 @@ import axios, {
 } from 'axios';
 import { toast } from 'react-toastify';
 import { store } from '../stores/store';
-import { toISOStringWithTimezone } from '../utils/common';
+import { getClientTimeZone, toISOStringWithTimezone } from '../utils/common';
 import { history } from '../utils/route';
 
 function getFistErrorMessage(data: any): string | undefined {
@@ -85,6 +85,7 @@ const dateTransformer = (data: any): any => {
   return data;
 };
 
+
 axios.defaults.baseURL = '/api';
 axios.defaults.transformRequest = [
   dateTransformer,
@@ -93,8 +94,10 @@ axios.defaults.transformRequest = [
 axios.interceptors.request.use(async (request) => {
   await sleep(200);
   const token = store.userStore.user?.token;
-  if (token && request.headers)
-    request.headers.Authorization = `Bearer ${token}`;
+  if (request.headers) {
+    request.headers.time_zone = getClientTimeZone();
+    if (token) request.headers.Authorization = `Bearer ${token}`;
+  }
   return request;
 });
 

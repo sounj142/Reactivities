@@ -22,3 +22,10 @@ export function truncateText(text: string | null | undefined, length: number) {
   }
   return text;
 }
+
+//const timeZone = new Date().getTimezoneOffset();
+const timeZone = -300;
+
+export function getClientTimeZone() {
+  return timeZone;
+}

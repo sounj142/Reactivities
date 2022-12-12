@@ -1,6 +1,5 @@
 using Application.Activities.Dtos;
 using AutoMapper;
-using Domain;
 using Domain.Activities;
 using Domain.Exceptions;
 using Domain.Repositories;

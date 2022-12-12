@@ -19,4 +19,24 @@ public class CurrentUserContext : ICurrentUserContext
 
     public string GetCurrentUserEmail()
         => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
+
+    public DateTimeOffset GetClientNow()
+    {
+        var timeZoneHeader = _httpContextAccessor.HttpContext?.Request?.Headers?["time_zone"];
+        var timeZoneText = timeZoneHeader?.FirstOrDefault();
+        if (string.IsNullOrEmpty(timeZoneText))
+        {
+            timeZoneHeader = _httpContextAccessor.HttpContext?.Request?.Query?["time_zone"];
+            timeZoneText = timeZoneHeader?.FirstOrDefault();
+        }
+        int timeOffsetInMinute;
+
+        Console.WriteLine($"xxxxxxxxxxxxx timeZoneText: {timeZoneText}");
+        var date = DateTimeOffset.Now;
+        if (int.TryParse(timeZoneText, out timeOffsetInMinute))
+        {
+            date = date.ToOffset(TimeSpan.FromMinutes(-timeOffsetInMinute));
+        }
+        return date;
+    }
 }

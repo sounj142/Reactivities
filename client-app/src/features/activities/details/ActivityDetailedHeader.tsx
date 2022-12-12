@@ -21,7 +21,6 @@ const activityImageTextStyle = {
 interface Props {
   activity: Activity;
 }
-
 export default observer(function ActivityDetailedHeader({ activity }: Props) {
   const {
     activityStore: {

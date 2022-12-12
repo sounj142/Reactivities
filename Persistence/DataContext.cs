@@ -9,6 +9,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
     public DbSet<ActivityDao> Activities { get; set; }
     public DbSet<ActivityAttendeeDao> ActivityAttendees { get; set; }
     public DbSet<PhotoDao> Photos { get; set; }
+    public DbSet<CommentDao> Comments { get; set; }
 
     public DataContext(DbContextOptions options) : base(options)
     {
@@ -56,8 +57,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
         builder.Entity<ActivityAttendeeDao>(options =>
         {
             options.Property(t => t.UserId)
-                .IsRequired()
-                .HasMaxLength(450);
+                .IsRequired();
             options.HasKey(t => new { t.ActivityId, t.UserId });
             options.HasOne(t => t.Activity)
                 .WithMany(t => t.Attendees)
@@ -81,6 +81,24 @@ public class DataContext : IdentityDbContext<AppUserDao>
             options.HasOne(t => t.User)
                 .WithMany(t => t.Photos)
                 .HasForeignKey(t => t.UserId);
+        });
+    }
+
+    private void ConfigComment(ModelBuilder builder)
+    {
+        builder.Entity<CommentDao>(options =>
+        {
+            options.Property(t => t.Body)
+                .IsRequired()
+                .HasMaxLength(10000);
+            options.Property(t => t.AuthorId)
+                .IsRequired();
+            options.HasOne(t => t.Author)
+                .WithMany(t => t.Comments)
+                .HasForeignKey(t => t.AuthorId);
+            options.HasOne(t => t.Activity)
+                .WithMany(t => t.Comments)
+                .HasForeignKey(t => t.ActivityId);
         });
     }
 }

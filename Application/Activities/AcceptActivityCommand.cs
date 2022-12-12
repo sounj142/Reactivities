@@ -1,4 +1,4 @@
-using Domain;
+using Domain.Activities;
 using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.Services;
@@ -36,7 +36,7 @@ public class AcceptActivityCommandHandler : IRequestHandler<AcceptActivityComman
         if (activity.IsCancelled)
             throw new FrameworkException(ErrorCode.APP0007, "Attendance rejected. Activity has already canceled.");
 
-        var attendee = await _activityRepository.Accept(request.Id, userId, DateTimeOffset.Now);
+        var attendee = await _activityRepository.Accept(request.Id, userId, _currentUserContext.GetClientNow());
         return attendee;
     }
 }
