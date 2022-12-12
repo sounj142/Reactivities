@@ -1,5 +1,7 @@
+using API.Utils;
 using Application.Comments;
 using Application.Comments.Dtos;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 
@@ -8,26 +10,28 @@ namespace API.SignalR;
 public class ChatHub : Hub
 {
     private readonly IMediator _mediator;
+    private readonly IValidator<CommentDto> _validator;
 
-    public ChatHub(IMediator mediator)
+    public ChatHub(IMediator mediator, IValidator<CommentDto> validator)
     {
-        Console.WriteLine("----------Creating chathub!");
+        _validator = validator;
         _mediator = mediator;
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        Console.WriteLine("----------Disposing chathub!");
     }
 
     public async Task SendComment(CommentDto model)
     {
-        // TODO: Validator???
-        var comment = await _mediator.Send(new CreateCommentCommand { Comment = model });
-
-        await Clients.Group(model.ActivityId.ToString())
-            .SendAsync("CommentCreated", comment);
+        var validatorResult = _validator.Validate(model);
+        if (validatorResult.IsValid)
+        {
+            var comment = await _mediator.Send(new CreateCommentCommand { Comment = model });
+            await Clients.Group(model.ActivityId.ToString())
+                .SendAsync("CommentCreated", comment);
+        }
+        else
+        {
+            var error = ErrorResponse.Create(Context.GetHttpContext(), validatorResult.Errors);
+            await Clients.Caller.SendAsync("CommentCreatingError", error);
+        }
     }
 
     public override async Task OnConnectedAsync()

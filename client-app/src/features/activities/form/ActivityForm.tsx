@@ -60,6 +60,7 @@ export default observer(function ActivityForm() {
         });
       }
     }
+    return () => activityStore.changeSelectedActivity(undefined);
   }, [activityStore, id]);
 
   async function formSubmitHandle(activity: ActivityModel) {

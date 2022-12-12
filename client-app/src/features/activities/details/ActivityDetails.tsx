@@ -17,6 +17,8 @@ export default observer(function ActivityDetails() {
     if (activityStore.selectedActivity?.id !== id) {
       activityStore.loadActivity(id);
     }
+
+    return () => activityStore.changeSelectedActivity(undefined);
   }, [activityStore, id]);
 
   const activity = activityStore.selectedActivity;

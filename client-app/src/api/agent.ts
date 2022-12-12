@@ -85,8 +85,7 @@ const dateTransformer = (data: any): any => {
   return data;
 };
 
-
-axios.defaults.baseURL = '/api';
+axios.defaults.baseURL = `${process.env.REACT_APP_SERVER_URL || ''}/api`;
 axios.defaults.transformRequest = [
   dateTransformer,
   ...(axios.defaults.transformRequest as AxiosRequestTransformer[]),

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FluentValidation.Results;
 
 namespace API.Utils;
 
@@ -23,5 +24,13 @@ public class ErrorResponse
         params string[] messages)
     {
         return Create(context, new Dictionary<string, string[]> { { name, messages } });
+    }
+
+    public static ErrorResponse Create(HttpContext context, List<ValidationFailure> failures)
+    {
+        var traceId = Activity.Current?.Id ?? context?.TraceIdentifier;
+        var errors = failures.GroupBy(x => x.PropertyName)
+            .ToDictionary(x => x.Key, x => x.Select(x => x.ErrorMessage).ToArray());
+        return new ErrorResponse(traceId, errors);
     }
 }

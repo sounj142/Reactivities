@@ -35,7 +35,6 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         comment.AuthorId = _currentUserContext.GetCurrentUserId();
         comment.CreatedAt = _currentUserContext.GetClientNow();
 
-        Console.WriteLine($"=============CreatedAt: {comment.CreatedAt}");
         await _commentRepository.Create(comment);
 
         var createdComment = await _commentRepository.GetById(comment.Id);

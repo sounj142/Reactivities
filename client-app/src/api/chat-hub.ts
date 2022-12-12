@@ -8,10 +8,11 @@ import { getClientTimeZone } from '../utils/common';
 
 let hubConnection: HubConnection | undefined = undefined;
 
+const baseUrl = process.env.REACT_APP_SERVER_URL || '';
 export async function createHubConnection(activityId: string) {
   hubConnection = new HubConnectionBuilder()
     .withUrl(
-      `/chat?activityId=${activityId}&time_zone=${getClientTimeZone()}`,
+      `${baseUrl}/chat?activityId=${activityId}&time_zone=${getClientTimeZone()}`,
       {
         accessTokenFactory: () => store.userStore.user?.token!,
       }
@@ -35,6 +36,13 @@ export function stopHubConnection() {
     const result = hubConnection.stop();
     hubConnection = undefined;
     return result;
+  }
+  return Promise.resolve();
+}
+
+export function callMethod(methodName: string, ...args: any[]) {
+  if (hubConnection) {
+    return hubConnection.invoke(methodName, ...args);
   }
   return Promise.resolve();
 }

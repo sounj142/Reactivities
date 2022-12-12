@@ -23,7 +23,7 @@ public class CommentRepository : ICommentRepository
         var comments = await _dbContext.Comments.AsNoTracking()
             .ProjectTo<CommentWithAuthor>(_mapper.ConfigurationProvider)
             .Where(x => x.ActivityId == activityId)
-            .OrderBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
         return comments;
     }

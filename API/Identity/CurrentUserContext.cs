@@ -29,9 +29,8 @@ public class CurrentUserContext : ICurrentUserContext
             timeZoneHeader = _httpContextAccessor.HttpContext?.Request?.Query?["time_zone"];
             timeZoneText = timeZoneHeader?.FirstOrDefault();
         }
-        int timeOffsetInMinute;
 
-        Console.WriteLine($"xxxxxxxxxxxxx timeZoneText: {timeZoneText}");
+        int timeOffsetInMinute;
         var date = DateTimeOffset.Now;
         if (int.TryParse(timeZoneText, out timeOffsetInMinute))
         {

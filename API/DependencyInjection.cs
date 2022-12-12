@@ -39,6 +39,21 @@ public static class DependencyInjection
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
         });
 
+        var clientHost = configuration["ClientHost"];
+        if (!string.IsNullOrEmpty(clientHost))
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                        .WithOrigins(clientHost);
+                });
+            });
+        }
+
         services
                 .AddFluentValidationAutoValidation()
                 .AddValidatorsFromAssemblyContaining<Application.Activities.Dtos.ActivityDto>()

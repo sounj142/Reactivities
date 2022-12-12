@@ -3,7 +3,6 @@ import { Message } from 'semantic-ui-react';
 interface Props {
   serverResponse: any;
 }
-
 export default function ValidationErrors({ serverResponse }: Props) {
   if (typeof serverResponse === 'string')
     return (
@@ -27,4 +26,4 @@ export default function ValidationErrors({ serverResponse }: Props) {
       <Message.Item>Unknown Error.</Message.Item>
     </Message>
   );
-}
+};

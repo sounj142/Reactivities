@@ -40,14 +40,19 @@ namespace API
 
             app.UseRouting();
 
+            if (env.IsDevelopment())
+            {
+                app.UseCors("CorsPolicy");
+            }
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<ChatHub>("/chat");
-                //    .RequireAuthorization();
+                endpoints.MapHub<ChatHub>("/chat")
+                    .RequireAuthorization();
             });
         }
     }
