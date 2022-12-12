@@ -26,7 +26,6 @@ export default observer(function ActivityDetailedChat({ activity }: Props) {
       .required('Comment is required.')
       .max(10000, 'Comment must not exceed 10000 characters.'),
   });
-  console.log('rerunnnn!');
 
   useEffect(() => {
     const interval = setInterval(() => setTimer(Date.now()), 20000);
