@@ -3,6 +3,8 @@ import { UserAbout, UserProfile } from './../models/UserProfile';
 import { makeAutoObservable, runInAction } from 'mobx';
 import profileApis from '../api/profile-api';
 import { store } from './store';
+import { UserFollowing } from '../models/Follower';
+import { fixFollowingInfo } from './follow-store';
 
 export default class ProfileStore {
   profile?: UserProfile = undefined;
@@ -108,5 +110,32 @@ export default class ProfileStore {
       store.userStore.updateProfileAbout(data);
       store.activityStore.updateProfileAbout(data);
     });
+  };
+
+  fixProfileStoreAfterChangeFollowing = (
+    observer: UserFollowing,
+    target: UserFollowing,
+    isFollow: boolean
+  ) => {
+    if (!this.profile) return;
+    if (this.profile.userName === observer.userName) {
+      if (isFollow) this.profile.followings.push({ ...target });
+      else
+        this.profile.followings = this.profile.followings.filter(
+          (x) => x.userName !== target.userName
+        );
+    } else if (this.profile.userName === target.userName) {
+      if (isFollow) this.profile.followers.push({ ...observer });
+      else
+        this.profile.followers = this.profile.followers.filter(
+          (x) => x.userName !== observer.userName
+        );
+    }
+    this.profile.followers.forEach((x) =>
+      fixFollowingInfo(x, observer, target)
+    );
+    this.profile.followings.forEach((x) =>
+      fixFollowingInfo(x, observer, target)
+    );
   };
 }

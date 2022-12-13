@@ -3,6 +3,7 @@ using Application.Photos;
 using Application.Profiles;
 using Application.Profiles.Dtos;
 using Domain.Photos;
+using Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;

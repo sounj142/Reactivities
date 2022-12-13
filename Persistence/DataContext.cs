@@ -10,6 +10,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
     public DbSet<ActivityAttendeeDao> ActivityAttendees { get; set; }
     public DbSet<PhotoDao> Photos { get; set; }
     public DbSet<CommentDao> Comments { get; set; }
+    public DbSet<UserFollowingDao> UserFollowings { get; set; }
 
     public DataContext(DbContextOptions options) : base(options)
     {
@@ -22,6 +23,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
         ConfigAppUser(builder);
         ConfigActivityAttendee(builder);
         ConfigPhoto(builder);
+        ConfigUserFollowing(builder);
     }
 
     private void ConfigActivity(ModelBuilder builder)
@@ -99,6 +101,25 @@ public class DataContext : IdentityDbContext<AppUserDao>
             options.HasOne(t => t.Activity)
                 .WithMany(t => t.Comments)
                 .HasForeignKey(t => t.ActivityId);
+        });
+    }
+
+    private void ConfigUserFollowing(ModelBuilder builder)
+    {
+        builder.Entity<UserFollowingDao>(options =>
+        {
+            options.HasKey(t => new { t.ObserverId, t.TargetId });
+            options.Property(t => t.ObserverId)
+                .IsRequired();
+            options.Property(t => t.TargetId)
+                .IsRequired();
+            options.HasOne(t => t.Observer)
+                .WithMany(t => t.Followings)
+                .HasForeignKey(t => t.ObserverId);
+            options.HasOne(t => t.Target)
+                .WithMany(t => t.Followers)
+                .HasForeignKey(t => t.TargetId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
     }
 }

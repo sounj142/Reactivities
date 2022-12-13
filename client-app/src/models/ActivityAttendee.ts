@@ -8,4 +8,7 @@ export default interface ActivityAttendee {
   displayName: string;
   bio?: string;
   image?: string;
+  currentUserFollowing: boolean;
+  folowersCount: number;
+  folowingsCount: number;
 }

@@ -5,6 +5,7 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Daos;
 using Domain.Activities;
+using Domain.Services;
 
 namespace Persistence.Repositories;
 
@@ -12,9 +13,13 @@ public class ActivityRepository : IActivityRepository
 {
     private readonly DataContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public ActivityRepository(DataContext dbContext, IMapper mapper)
+    public ActivityRepository(DataContext dbContext,
+        IMapper mapper,
+        ICurrentUserContext currentUserContext)
     {
+        _currentUserContext = currentUserContext;
         _dbContext = dbContext;
         _mapper = mapper;
     }
@@ -32,8 +37,9 @@ public class ActivityRepository : IActivityRepository
 
     public async Task<IList<ActivityWithAttendees>> GetAll()
     {
+        var currentUserId = _currentUserContext.GetCurrentUserId();
         var activities = await _dbContext.Activities.AsNoTracking()
-            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider)
+            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider, new { currentUserId })
             .ToListAsync();
         return activities;
     }

@@ -1,8 +1,11 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Exceptions;
+using Domain.Followers;
 using Domain.Photos;
+using Domain.Profiles;
 using Domain.Repositories;
+using Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Daos;
 
@@ -12,9 +15,13 @@ public class ProfileRepository : IProfileRepository
 {
     private readonly DataContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public ProfileRepository(DataContext dbContext, IMapper mapper)
+    public ProfileRepository(DataContext dbContext,
+        IMapper mapper,
+        ICurrentUserContext currentUserContext)
     {
+        _currentUserContext = currentUserContext;
         _dbContext = dbContext;
         _mapper = mapper;
     }
@@ -27,12 +34,23 @@ public class ProfileRepository : IProfileRepository
         return user;
     }
 
-    public async Task<UserProfileFullInfo> GetUserProfileByUserName(string userName)
+    public async Task<UserProfile> GetUserProfileByUserName(string userName)
     {
         userName = userName?.ToUpper();
         var user = await _dbContext.Users.AsNoTracking()
             .Where(u => u.NormalizedUserName == userName)
-            .ProjectTo<UserProfileFullInfo>(_mapper.ConfigurationProvider)
+            .ProjectTo<UserProfile>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+        return user;
+    }
+
+    public async Task<UserProfileFullInfo> GetUserProfileFullInfoByUserName(string userName)
+    {
+        var currentUserId = _currentUserContext.GetCurrentUserId();
+        userName = userName?.ToUpper();
+        var user = await _dbContext.Users.AsNoTracking()
+            .Where(u => u.NormalizedUserName == userName)
+            .ProjectTo<UserProfileFullInfo>(_mapper.ConfigurationProvider, new { currentUserId })
             .FirstOrDefaultAsync();
         return user;
     }
@@ -85,5 +103,42 @@ public class ProfileRepository : IProfileRepository
         user.DisplayName = displayName;
         user.Bio = bio;
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<bool> HasFollowed(string observerId, string targetId)
+    {
+        return await _dbContext.UserFollowings
+            .AnyAsync(x => x.ObserverId == observerId && x.TargetId == targetId);
+    }
+
+    public async Task FollowUser(string observerId, string targetId, DateTimeOffset createdAt)
+    {
+        _dbContext.UserFollowings.Add(new UserFollowingDao
+        {
+            ObserverId = observerId,
+            TargetId = targetId,
+            CreatedAt = createdAt
+        });
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task UnfollowUser(string observerId, string targetId)
+    {
+        var userFollowing = await _dbContext.UserFollowings
+            .FirstOrDefaultAsync(x => x.ObserverId == observerId && x.TargetId == targetId);
+        if (userFollowing != null)
+        {
+            _dbContext.UserFollowings.Remove(userFollowing);
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task<UserFollower> GetUserFollowerInfo(string userId)
+    {
+        var currentUserId = _currentUserContext.GetCurrentUserId();
+        var userFollower = await _dbContext.Users
+            .ProjectTo<UserFollower>(_mapper.ConfigurationProvider, new { currentUserId })
+            .FirstOrDefaultAsync(x => x.Id == userId);
+        return userFollower;
     }
 }

@@ -24,6 +24,9 @@ public class ErrorCode
     public static readonly string APP0020;
     public static readonly string APP0021;
     public static readonly string APP0022;
+    public static readonly string APP0023;
+    public static readonly string APP0024;
+    public static readonly string APP0025;
     // user don't have permission to edit activity
     public static readonly string APP_DONT_HAVE_EDIT_PERMISSION;
 

@@ -1,3 +1,4 @@
+import { UserFollowing } from './Follower';
 import { Photo } from './Photo';
 
 export interface UserAbout {
@@ -11,4 +12,6 @@ export interface UserProfile extends UserAbout {
   userName: string;
   image?: string;
   photos: Photo[];
+  followers: UserFollowing[];
+  followings: UserFollowing[];
 }

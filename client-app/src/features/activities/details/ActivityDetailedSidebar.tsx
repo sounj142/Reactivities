@@ -6,7 +6,6 @@ import ActivityAttendee from '../../../models/ActivityAttendee';
 interface Props {
   attendees: ActivityAttendee[];
 }
-
 export default observer(function ActivityDetailedSidebar({ attendees }: Props) {
   return (
     <>
@@ -43,7 +42,9 @@ export default observer(function ActivityDetailedSidebar({ attendees }: Props) {
                     {attendee.displayName}
                   </Link>
                 </Item.Header>
-                {/* <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra> */}
+                {attendee.currentUserFollowing && (
+                  <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>
+                )}
               </Item.Content>
             </Item>
           ))}

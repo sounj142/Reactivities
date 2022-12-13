@@ -5,6 +5,8 @@ import Activity, { ActivityModel } from '../models/Activity';
 import { formatDate } from '../utils/common';
 import { store } from './store';
 import { UserAbout } from '../models/UserProfile';
+import { UserFollowing } from '../models/Follower';
+import { fixFollowingInfo } from './follow-store';
 
 export default class ActivityStore {
   private activities: Activity[] = [];
@@ -221,5 +223,16 @@ export default class ActivityStore {
     this.activities.forEach((activity) =>
       this.updateProfileAboutOfActivity(activity, data, user.userName)
     );
+  };
+
+  fixActivityStoreAfterChangeFollowing = (
+    observer: UserFollowing,
+    target: UserFollowing
+  ) => {
+    this.activities.forEach((activity) => {
+      activity.attendees.forEach((attendee) =>
+        fixFollowingInfo(attendee, observer, target)
+      );
+    });
   };
 }
