@@ -4,10 +4,14 @@ import { Image, List, Popup } from 'semantic-ui-react';
 import ActivityAttendee from '../../../models/ActivityAttendee';
 import ProfileCard from '../../profiles/ProfileCard';
 
+const styles = {
+  borderColor: 'orange',
+  borderWidth: 3,
+};
+
 interface Props {
   attendees: ActivityAttendee[];
 }
-
 export default observer(function ActivityListItemAttendee({
   attendees,
 }: Props) {
@@ -22,7 +26,9 @@ export default observer(function ActivityListItemAttendee({
               <Image
                 size='mini'
                 circular
+                bordered
                 src={attendee.image || '/assets/user.png'}
+                style={attendee.currentUserFollowing ? styles : null}
               />
             </List.Item>
           }

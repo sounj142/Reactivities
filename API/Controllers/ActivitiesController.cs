@@ -34,7 +34,7 @@ public class ActivitiesController : BaseApiController
     }
 
     [HttpPost("{id}/accept")]
-    public async Task<ActionResult<Attendee>> Accept(string id)
+    public async Task<ActionResult<AttendeeWithFollowInfo>> Accept(string id)
     {
         var atendee = await Mediator.Send(new AcceptActivityCommand { Id = ParseGuid(id) });
         return Ok(atendee);

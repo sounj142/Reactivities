@@ -12,7 +12,7 @@ public interface IActivityRepository
 
     Task Update(Activity activity);
 
-    Task<Attendee> Accept(Guid activityId, string userId, DateTimeOffset dateJoined);
+    Task<AttendeeWithFollowInfo> Accept(Guid activityId, string userId, DateTimeOffset dateJoined);
 
     Task Reject(Guid activityId, string userId);
 

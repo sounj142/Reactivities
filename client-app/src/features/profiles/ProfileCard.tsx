@@ -1,22 +1,18 @@
 import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
-import { Button, Card, Icon, Image, Reveal } from 'semantic-ui-react';
+import { Card, Icon, Image } from 'semantic-ui-react';
 import ActivityAttendee from '../../models/ActivityAttendee';
 import { UserFollowing } from '../../models/Follower';
 import { useStore } from '../../stores/store';
 import { truncateText } from '../../utils/common';
+import FollowButton from './FollowButton';
 
 interface Props {
   profile: ActivityAttendee | UserFollowing;
 }
 export default observer(function ProfileCard({ profile }: Props) {
-  const { userStore, followStore } = useStore();
-  const { followOrUnfollow, followerLoading } = followStore;
+  const { userStore } = useStore();
   const profileIsCurrentUser = userStore.user?.userName === profile.userName;
-
-  function handleFollowButtonClick() {
-    followOrUnfollow(profile.userName, !profile.currentUserFollowing);
-  }
 
   return (
     <Card>
@@ -35,29 +31,10 @@ export default observer(function ProfileCard({ profile }: Props) {
         {profile.folowersCount === 1 ? 'follower' : 'followers'}
       </Card.Content>
       {!profileIsCurrentUser && (
-        <Reveal animated='move'>
-          <Reveal.Content visible style={{ width: '100%' }}>
-            <Button
-              fluid
-              color={profile.currentUserFollowing ? 'teal' : 'black'}
-              content={
-                profile.currentUserFollowing ? 'Following' : 'Not Follow'
-              }
-              loading={followerLoading === profile.userName}
-            />
-          </Reveal.Content>
-          <Reveal.Content hidden style={{ width: '100%' }}>
-            <Button
-              fluid
-              basic
-              loading={followerLoading === profile.userName}
-              disabled={!!followerLoading}
-              color={profile.currentUserFollowing ? 'red' : 'green'}
-              content={profile.currentUserFollowing ? 'Unfollow' : 'Follow'}
-              onClick={handleFollowButtonClick}
-            />
-          </Reveal.Content>
-        </Reveal>
+        <FollowButton
+          currentUserFollowing={profile.currentUserFollowing}
+          userName={profile.userName}
+        />
       )}
     </Card>
   );

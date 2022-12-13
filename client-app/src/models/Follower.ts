@@ -2,7 +2,7 @@ export interface UserFollowing {
   id: string;
   displayName: string;
   userName: string;
-  bio: string;
+  bio?: string;
   image: string;
   currentUserFollowing: boolean;
   folowersCount: number;

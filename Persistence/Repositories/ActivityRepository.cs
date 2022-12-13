@@ -26,8 +26,9 @@ public class ActivityRepository : IActivityRepository
 
     public async Task<ActivityWithAttendees> GetById(Guid id, bool throwIfNotFound = false)
     {
+        var currentUserId = _currentUserContext.GetCurrentUserId();
         var activity = await _dbContext.Activities.AsNoTracking()
-            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider)
+            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider, new { currentUserId })
             .FirstOrDefaultAsync(p => p.Id == id);
         if (throwIfNotFound && activity == null)
             throw new NotFoundException(ErrorCode.REPO0003, "Activity is not found.");
@@ -71,7 +72,7 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<Attendee> Accept(Guid activityId, string userId, DateTimeOffset dateJoined)
+    public async Task<AttendeeWithFollowInfo> Accept(Guid activityId, string userId, DateTimeOffset dateJoined)
     {
         _dbContext.ActivityAttendees.Add(new ActivityAttendeeDao
         {
@@ -83,9 +84,9 @@ public class ActivityRepository : IActivityRepository
         await _dbContext.SaveChangesAsync();
 
         var activityAttendee = _dbContext.ActivityAttendees
-            .ProjectTo<Attendee>(_mapper.ConfigurationProvider)
+            .ProjectTo<AttendeeWithFollowInfo>(_mapper.ConfigurationProvider)
             .FirstOrDefault(x => x.UserId == userId && x.ActivityId == activityId);
-        return _mapper.Map<Attendee>(activityAttendee);
+        return activityAttendee;
     }
 
     public async Task Reject(Guid activityId, string userId)

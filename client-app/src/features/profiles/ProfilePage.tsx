@@ -9,12 +9,15 @@ import ProfileHeader from './ProfileHeader';
 
 export default observer(function ProfilePage() {
   const { profileStore } = useStore();
-  const { profile, loadingProfile, getProfile } = profileStore;
+  const { profile, loadingProfile, getProfile, setProfile } = profileStore;
   const { userName } = useParams<{ userName: string }>();
 
   useEffect(() => {
     getProfile(userName);
-  }, [getProfile, userName]);
+    return () => {
+      setProfile(undefined);
+    };
+  }, [getProfile, setProfile, userName]);
 
   if (!profile || loadingProfile)
     return <Loading content='Loading profiles...' />;

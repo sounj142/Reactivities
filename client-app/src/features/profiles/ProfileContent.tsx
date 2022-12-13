@@ -2,7 +2,6 @@ import { observer } from 'mobx-react-lite';
 import { Tab } from 'semantic-ui-react';
 import { UserProfile } from '../../models/UserProfile';
 import ProfileAbout from './ProfileAbout';
-import ProfileFollowers from './ProfileFollowers';
 import ProfileFollowings from './ProfileFollowings';
 import ProfilePhotos from './ProfilePhotos';
 
@@ -25,11 +24,11 @@ export default observer(function ProfileContent({ profile }: Props) {
     },
     {
       menuItem: 'Followers',
-      render: () => <ProfileFollowers profile={profile} />,
+      render: () => <ProfileFollowings profile={profile} isFollowing={false} />,
     },
     {
       menuItem: 'Following',
-      render: () => <ProfileFollowings profile={profile} />,
+      render: () => <ProfileFollowings profile={profile} isFollowing={true} />,
     },
   ];
   return (

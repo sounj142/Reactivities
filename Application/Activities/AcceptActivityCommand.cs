@@ -6,12 +6,12 @@ using MediatR;
 
 namespace Application.Activities;
 
-public class AcceptActivityCommand : IRequest<Attendee>
+public class AcceptActivityCommand : IRequest<AttendeeWithFollowInfo>
 {
     public Guid Id { get; set; }
 }
 
-public class AcceptActivityCommandHandler : IRequestHandler<AcceptActivityCommand, Attendee>
+public class AcceptActivityCommandHandler : IRequestHandler<AcceptActivityCommand, AttendeeWithFollowInfo>
 {
     private readonly IActivityRepository _activityRepository;
     private readonly ICurrentUserContext _currentUserContext;
@@ -24,7 +24,7 @@ public class AcceptActivityCommandHandler : IRequestHandler<AcceptActivityComman
         _currentUserContext = currentUserContext;
     }
 
-    public async Task<Attendee> Handle(AcceptActivityCommand request, CancellationToken cancellationToken)
+    public async Task<AttendeeWithFollowInfo> Handle(AcceptActivityCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserContext.GetCurrentUserId();
         var activity = await _activityRepository.GetById(request.Id);
