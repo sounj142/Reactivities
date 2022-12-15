@@ -2,6 +2,7 @@ using Application.Activities;
 using Application.Photos;
 using Application.Profiles;
 using Application.Profiles.Dtos;
+using Domain.Activities;
 using Domain.Photos;
 using Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
@@ -52,5 +53,16 @@ public class ProfilesController : BaseApiController
     {
         await Mediator.Send(new UpdateUserAboutCommand { About = model });
         return Ok();
+    }
+
+    [HttpGet("{userName}/activities/{predicate?}")]
+    public async Task<ActionResult<UserProfileFullInfo>> GetFutureActivities(
+        string userName, ActivityFilterPredicateType predicate = ActivityFilterPredicateType.All)
+    {
+        return Ok(await Mediator.Send(new GetActivitiesOfUserQuery
+        {
+            UserName = userName,
+            Predicate = predicate
+        }));
     }
 }

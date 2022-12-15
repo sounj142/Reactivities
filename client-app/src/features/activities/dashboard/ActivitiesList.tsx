@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Fragment } from 'react';
-import { Header } from 'semantic-ui-react';
+import { Header, Segment } from 'semantic-ui-react';
 import { useStore } from '../../../stores/store';
 import ActivitiesListItem from './ActivitiesListItem';
 
@@ -8,6 +8,13 @@ export default observer(function ActivitiesList() {
   const { activityStore } = useStore();
   const { activitiesGroupByDate } = activityStore;
 
+  if (!activitiesGroupByDate.length)
+    return (
+      <Fragment>
+        <Header sub>&nbsp;</Header>
+        <Segment>No Activities</Segment>
+      </Fragment>
+    );
   return (
     <>
       {activitiesGroupByDate.map((item) => (

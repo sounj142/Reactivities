@@ -1,6 +1,7 @@
 using Application.Activities;
 using Application.Activities.Dtos;
 using Domain.Activities;
+using Domain.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -8,9 +9,9 @@ namespace API.Controllers;
 public class ActivitiesController : BaseApiController
 {
     [HttpGet]
-    public async Task<IList<ActivityWithAttendees>> Get()
+    public async Task<PagedList<ActivityWithAttendees>> Get([FromQuery] GetActivitiesQuery query)
     {
-        return await Mediator.Send(new GetActivitiesQuery());
+        return await Mediator.Send(query);
     }
 
     [HttpGet("{id}")]

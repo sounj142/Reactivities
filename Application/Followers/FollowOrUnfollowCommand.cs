@@ -31,7 +31,7 @@ public class FollowOrUnfollowCommandHandler : IRequestHandler<FollowOrUnfollowCo
 
         var targetUser = await _profileRepository.GetUserProfileByUserName(request.TargetUserName);
         if (targetUser == null)
-            throw new FrameworkException(ErrorCode.APP0023, "User does not exist.");
+            throw new NotFoundException(ErrorCode.APP0023, "User does not exist.");
 
         var hasFollowed = await _profileRepository.HasFollowed(userId, targetUser.Id);
         if (request.IsFollow)

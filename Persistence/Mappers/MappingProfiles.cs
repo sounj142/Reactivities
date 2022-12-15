@@ -82,5 +82,7 @@ public class MappingProfiles : Profile
             .ForMember(x => x.AuthorUserName, g => g.MapFrom(q => q.Author.UserName))
             .ForMember(x => x.AuthorDisplayName, g => g.MapFrom(q => q.Author.DisplayName))
             .ForMember(x => x.AuthorImage, g => g.MapFrom(q => q.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
+
+        CreateMap<ActivityDao, ActivityMinimumInfo>();
     }
 }

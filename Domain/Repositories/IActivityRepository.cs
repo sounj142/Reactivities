@@ -1,4 +1,5 @@
 using Domain.Activities;
+using Domain.Common;
 
 namespace Domain.Repositories;
 
@@ -6,7 +7,8 @@ public interface IActivityRepository
 {
     Task<ActivityWithAttendees> GetById(Guid id, bool throwIfNotFound = false);
 
-    Task<IList<ActivityWithAttendees>> GetAll();
+    Task<PagedList<ActivityWithAttendees>> GetAll(int currentPage, int pageSize,
+        bool? isGoing, bool? isHost, DateTimeOffset? startDate);
 
     Task Create(Activity activity, string userId, DateTimeOffset dateJoined);
 
@@ -18,4 +20,6 @@ public interface IActivityRepository
 
     Task Cancel(Guid activityId);
     Task Reactivate(Guid activityId);
+    Task<IList<ActivityMinimumInfo>> GetActivitiesOfUser(
+        string userId, ActivityFilterPredicateType predicate);
 }

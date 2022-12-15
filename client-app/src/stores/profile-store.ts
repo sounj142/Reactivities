@@ -5,11 +5,17 @@ import profileApis from '../api/profile-api';
 import { store } from './store';
 import { UserFollowing } from '../models/Follower';
 import { fixFollowingInfo } from './follow-store';
+import {
+  ActivityFilterPredicateType,
+  ActivityMinimumInfo,
+} from '../models/ActivityMinimumInfo';
 
 export default class ProfileStore {
   profile?: UserProfile = undefined;
+  events: ActivityMinimumInfo[] = [];
   loadingProfile = false;
   processingPhoto = false;
+  loadingEvents = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -25,6 +31,18 @@ export default class ProfileStore {
 
   setProcessingPhoto = (value: boolean) => {
     this.processingPhoto = value;
+  };
+
+  setEvents = (data: ActivityMinimumInfo[]) => {
+    data.forEach((activity) => {
+      if (!(activity.date instanceof Date))
+        activity.date = new Date(activity.date);
+    });
+    this.events = data;
+  };
+
+  setLoadingEvents = (value: boolean) => {
+    this.loadingEvents = value;
   };
 
   getProfile = async (userName: string) => {
@@ -137,5 +155,18 @@ export default class ProfileStore {
     this.profile.followings.forEach((x) =>
       fixFollowingInfo(x, observer, target)
     );
+  };
+
+  getEvents = async (
+    userName: string,
+    predicate: ActivityFilterPredicateType
+  ) => {
+    this.setLoadingEvents(true);
+    try {
+      const events = await profileApis.getActivitiesOfUser(userName, predicate);
+      this.setEvents(events);
+    } finally {
+      this.setLoadingEvents(false);
+    }
   };
 }

@@ -4,7 +4,8 @@ export function getImageUrl(category: string): string {
   return `/assets/categoryImages/${category}.jpg`;
 }
 
-export const toISOStringWithTimezone = (date: Date) => {
+export const toISOStringWithTimezone = (date: Date | undefined | null) => {
+  if (date === null || date === undefined) return date;
   return format(date, "yyyy-MM-dd'T'HH:mm:ssxxx");
 };
 
@@ -14,6 +15,10 @@ export const formatDateTime = (date: Date) => {
 
 export const formatDate = (date: Date) => {
   return format(date, 'dd MMMM yyyy');
+};
+
+export const formatTime = (date: Date) => {
+  return format(date, 'h:mm aa');
 };
 
 export function truncateText(text: string | null | undefined, length: number) {

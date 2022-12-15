@@ -1,12 +1,8 @@
 ﻿namespace Domain.Activities;
 
-public class Activity
+public class Activity : ActivityMinimumInfo
 {
-    public Guid Id { get; set; }
-    public string Title { get; set; }
-    public DateTimeOffset Date { get; set; }
     public string Description { get; set; }
-    public string Category { get; set; }
     public string City { get; set; }
     public string Venue { get; set; }
 }

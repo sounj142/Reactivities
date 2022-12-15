@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.Daos;
 using Domain.Activities;
 using Domain.Services;
+using Domain.Common;
+using Persistence.Utils;
 
 namespace Persistence.Repositories;
 
@@ -15,7 +17,8 @@ public class ActivityRepository : IActivityRepository
     private readonly IMapper _mapper;
     private readonly ICurrentUserContext _currentUserContext;
 
-    public ActivityRepository(DataContext dbContext,
+    public ActivityRepository(
+        DataContext dbContext,
         IMapper mapper,
         ICurrentUserContext currentUserContext)
     {
@@ -36,13 +39,71 @@ public class ActivityRepository : IActivityRepository
         return activity;
     }
 
-    public async Task<IList<ActivityWithAttendees>> GetAll()
+    public async Task<PagedList<ActivityWithAttendees>> GetAll(int currentPage, int pageSize,
+        bool? isGoing, bool? isHost, DateTimeOffset? startDate)
     {
         var currentUserId = _currentUserContext.GetCurrentUserId();
-        var activities = await _dbContext.Activities.AsNoTracking()
-            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider, new { currentUserId })
-            .ToListAsync();
+        IQueryable<ActivityWithAttendees> activitiesQuery = _dbContext.Activities.AsNoTracking()
+            .ProjectTo<ActivityWithAttendees>(_mapper.ConfigurationProvider, new { currentUserId });
+
+        if (isHost == true)
+        {
+            activitiesQuery = activitiesQuery
+                .Where(a => a.Attendees.Any(u => u.UserId == currentUserId && u.IsHost));
+        }
+        else if (isGoing == true)
+        {
+            activitiesQuery = activitiesQuery
+                .Where(a => a.Attendees.Any(u => u.UserId == currentUserId));
+        }
+
+        if (startDate.HasValue)
+        {
+            activitiesQuery = activitiesQuery
+                .Where(a => a.Date >= startDate.Value);
+        }
+
+        activitiesQuery = activitiesQuery
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.Title);
+
+        var activities = await Helpers.CreatePageList(activitiesQuery, currentPage, pageSize);
         return activities;
+    }
+
+    public async Task<IList<ActivityMinimumInfo>> GetActivitiesOfUser(
+        string userId, ActivityFilterPredicateType predicate)
+    {
+        var query = _dbContext.Activities.AsNoTracking();
+        var now = _currentUserContext.GetClientNow();
+
+        switch (predicate)
+        {
+            case ActivityFilterPredicateType.Future:
+                query = query.Where(a =>
+                    a.Date >= now &&
+                    a.Attendees.Any(x => x.UserId == userId));
+                break;
+            case ActivityFilterPredicateType.Past:
+                query = query.Where(a =>
+                    a.Date < now &&
+                    a.Attendees.Any(x => x.UserId == userId));
+                break;
+            case ActivityFilterPredicateType.Hosting:
+                query = query.Where(a =>
+                    a.Attendees.Any(x => x.IsHost && x.UserId == userId));
+                break;
+            default:
+                query = query.Where(a =>
+                    a.Attendees.Any(x => x.UserId == userId));
+                break;
+        }
+
+        return await query
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.Title)
+            .ProjectTo<ActivityMinimumInfo>(_mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     public async Task Create(Activity activity, string userId, DateTimeOffset dateJoined)

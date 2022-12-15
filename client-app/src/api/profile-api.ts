@@ -1,3 +1,7 @@
+import {
+  ActivityFilterPredicateType,
+  ActivityMinimumInfo,
+} from './../models/ActivityMinimumInfo';
 import { Photo } from '../models/Photo';
 import { UserDto } from '../models/User';
 import { UserAbout, UserProfile } from '../models/UserProfile';
@@ -27,6 +31,13 @@ const profileApis = {
     requests.delete(`${basePath}/delete-photo/${photoId}`, undefined),
   updateProfileAbout: (data: UserAbout) =>
     requests.put<UserAbout, void>(`${basePath}/update-about`, data),
+  getActivitiesOfUser: (
+    userName: string,
+    predicate: ActivityFilterPredicateType
+  ) =>
+    requests.get<ActivityMinimumInfo[]>(
+      `${basePath}/${userName}/activities/${predicate}`
+    ),
 };
 
 export default profileApis;
