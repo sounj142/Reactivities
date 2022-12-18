@@ -80,10 +80,4 @@ public class AccountController : BaseApiController
 
         return await CreateUserDto(user.Id);
     }
-
-    [HttpGet("current-user")]
-    public async Task<ActionResult<UserDto>> GetCurrentUser()
-    {
-        return await CreateUserDto(_currentUserContext.GetCurrentUserId());
-    }
 }

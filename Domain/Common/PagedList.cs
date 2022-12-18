@@ -18,7 +18,7 @@ public class PagedList<T>
         PageSize = pageSize;
         TotalCount = totalCount;
 
-        TotalPages = TotalCount / pageSize;
-        if (TotalCount % pageSize > 0) TotalPages++;
+        TotalPages = TotalCount / PageSize;
+        if (TotalCount % PageSize > 0) TotalPages++;
     }
 }

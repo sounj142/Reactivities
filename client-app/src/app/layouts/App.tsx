@@ -12,6 +12,7 @@ import NotFound from '../../features/errors/NotFound';
 import ServerSideError from '../../features/errors/ServerSideError';
 import ModalContainer from '../modals/ModalContainer';
 import ProfilePage from '../../features/profiles/ProfilePage';
+import PrivateRoute from './PrivateRoute';
 
 export default observer(function App() {
   const location = useLocation();
@@ -29,42 +30,42 @@ export default observer(function App() {
             <Container style={{ marginTop: '7em' }}>
               <Switch>
                 <Route exact path='/test-errors' component={TestErrors} />
-                <Route
+                <PrivateRoute
                   exact
                   path='/activities'
                   component={ActivitiesDashboard}
                 />
 
-                <Route
+                <PrivateRoute
                   exact
                   key={location.key}
                   path='/activities/:id/edit'
                   component={ActivityForm}
                 />
-                <Route
+                <PrivateRoute
                   exact
                   key={location.key}
                   path='/activities/create'
                   component={ActivityForm}
                 />
-                <Route
+                <PrivateRoute
                   exact
                   path='/activities/:id'
                   component={ActivityDetails}
                 />
 
-                <Route
+                <PrivateRoute
                   exact
                   path='/profiles/:userName'
                   component={ProfilePage}
                 />
-                <Route
+                <PrivateRoute
                   exact
                   path='/server-side-error'
                   component={ServerSideError}
                 />
 
-                <Route exact component={NotFound} />
+                <PrivateRoute exact component={NotFound} />
               </Switch>
             </Container>
           </>
