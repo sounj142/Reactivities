@@ -1,6 +1,11 @@
 import { makeAutoObservable } from 'mobx';
 import accountApis from '../api/account-api';
-import { LoginDto, RegisterDto, UserDto } from '../models/User';
+import {
+  ChangePasswordDto,
+  LoginDto,
+  RegisterDto,
+  UserDto,
+} from '../models/User';
 import { UserAbout } from '../models/UserProfile';
 
 const tokenKey = 'jwt';
@@ -32,6 +37,11 @@ export default class UserStore {
 
   register = async (registerModel: RegisterDto) => {
     const user = await accountApis.register(registerModel);
+    this.setUser(user);
+  };
+
+  changePassword = async (model: ChangePasswordDto) => {
+    const user = await accountApis.changePassword(model);
     this.setUser(user);
   };
 

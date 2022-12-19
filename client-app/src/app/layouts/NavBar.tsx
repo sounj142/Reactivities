@@ -1,13 +1,13 @@
 import { observer } from 'mobx-react-lite';
 import { Link, NavLink } from 'react-router-dom';
 import { Button, Container, Dropdown, Image, Menu } from 'semantic-ui-react';
+import ChangePasswordForm from '../../features/users/ChangePasswordForm';
 import { useStore } from '../../stores/store';
 import { history } from '../../utils/route';
 
 export default observer(function NavBar() {
-  const {
-    userStore: { user, logOut },
-  } = useStore();
+  const { userStore, modalStore } = useStore();
+  const { user, logOut } = userStore;
 
   const handleLogout = () => {
     logOut();
@@ -48,6 +48,11 @@ export default observer(function NavBar() {
                   to={`/profiles/${user.userName}`}
                   text='My Profile'
                   icon='user'
+                />
+                <Dropdown.Item
+                  onClick={() => modalStore.openModal(<ChangePasswordForm />)}
+                  text='Change Password'
+                  icon='lock'
                 />
                 <Dropdown.Item
                   onClick={handleLogout}

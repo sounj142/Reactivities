@@ -1,4 +1,4 @@
-import { LoginDto, RegisterDto } from '../models/User';
+import { ChangePasswordDto, LoginDto, RegisterDto } from '../models/User';
 import { UserDto } from '../models/User';
 import { ignoreStatusCodes } from '../utils/axios';
 import { requests } from './agent';
@@ -15,6 +15,12 @@ const accountApis = {
     requests.post<RegisterDto, UserDto>(
       `${basePath}/register`,
       registerModel,
+      ignoreStatusCodes()
+    ),
+  changePassword: (model: ChangePasswordDto) =>
+    requests.put<ChangePasswordDto, UserDto>(
+      `${basePath}/change-password`,
+      model,
       ignoreStatusCodes()
     ),
 };

@@ -34,7 +34,7 @@ public class AccountController : BaseApiController
         _userManager = userManager;
     }
 
-    private async Task<UserDto> CreateUserDto(string userId)
+    private async Task<UserDto> GenerateUserDto(string userId)
     {
         var userDto = await _userManager.Users.AsNoTracking()
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
@@ -56,7 +56,7 @@ public class AccountController : BaseApiController
         if (!loginResult.Succeeded)
             return BadRequest(invalidMessage);
 
-        return await CreateUserDto(user.Id);
+        return await GenerateUserDto(user.Id);
     }
 
     [HttpPost("register")]
@@ -78,6 +78,22 @@ public class AccountController : BaseApiController
             return BadRequest(errorResponse);
         }
 
-        return await CreateUserDto(user.Id);
+        return await GenerateUserDto(user.Id);
+    }
+
+    [HttpPut("change-password")]
+    public async Task<ActionResult<UserDto>> ChangePassword(ChangePasswordDto model)
+    {
+        var userId = _currentUserContext.GetCurrentUserId();
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return BadRequest("User not found.");
+
+        var result = await _userManager.ChangePasswordAsync(
+            user, model.CurrentPassword, model.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors.FirstOrDefault()?.Description);
+
+        return await GenerateUserDto(user.Id);
     }
 }
