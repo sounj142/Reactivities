@@ -85,13 +85,14 @@ const dateTransformer = (data: any): any => {
   return data;
 };
 
-axios.defaults.baseURL = `${process.env.REACT_APP_SERVER_URL || ''}/api`;
+axios.defaults.baseURL = `${process.env.REACT_APP_SERVER_URL}api`;
 axios.defaults.transformRequest = [
   dateTransformer,
   ...(axios.defaults.transformRequest as AxiosRequestTransformer[]),
 ];
 axios.interceptors.request.use(async (request) => {
-  await sleep(200);
+  if (process.env.NODE_ENV === 'development') await sleep(200);
+
   const token = store.userStore.user?.token;
   if (request.headers) {
     request.headers.time_zone = getClientTimeZone();

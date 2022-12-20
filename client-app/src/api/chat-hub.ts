@@ -7,18 +7,19 @@ import {
 import { getClientTimeZone } from '../utils/common';
 
 let hubConnection: HubConnection | undefined = undefined;
+const isDevelopment = process.env.NODE_ENV === 'development';
 
-const baseUrl = process.env.REACT_APP_SERVER_URL || '';
+const baseUrl = process.env.REACT_APP_SERVER_URL;
 export async function createHubConnection(activityId: string) {
   hubConnection = new HubConnectionBuilder()
     .withUrl(
-      `${baseUrl}/chat?activityId=${activityId}&time_zone=${getClientTimeZone()}`,
+      `${baseUrl}chat?activityId=${activityId}&time_zone=${getClientTimeZone()}`,
       {
         accessTokenFactory: () => store.userStore.user?.token!,
       }
     )
     .withAutomaticReconnect()
-    .configureLogging(LogLevel.Information)
+    .configureLogging(isDevelopment ? LogLevel.Information : LogLevel.Warning)
     .build();
 
   await hubConnection.start();

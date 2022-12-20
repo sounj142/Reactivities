@@ -40,6 +40,9 @@ namespace API
 
             app.UseRouting();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             if (env.IsDevelopment())
             {
                 app.UseCors("CorsPolicy");
@@ -53,6 +56,7 @@ namespace API
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chat")
                     .RequireAuthorization();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }
