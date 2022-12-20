@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/6bf62121-1b7a-4684-9ee9-5e356977374c/AppServices/subscriptions/6bf62121-1b7a-4684-9ee9-5e356977374c/resourceGroups/ReactApp/providers/Microsoft.Web/sites/reactivities-hoang",
+    "appService.deploySubpath": "API"
+}

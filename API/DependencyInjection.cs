@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Persistence;
 using Persistence.Daos;
 
@@ -34,10 +33,6 @@ public static class DependencyInjection
                 // disable default Validation failure response mechanism
                 options.SuppressModelStateInvalidFilter = true;
             });
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
-        });
 
         var clientHost = configuration["ClientHost"];
         if (!string.IsNullOrEmpty(clientHost))

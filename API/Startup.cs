@@ -28,12 +28,22 @@ namespace API
         {
             app.UseCustomExceptionHandler();
 
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPIv5 v1"));
-            }
-            else
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(options => options.NoReferrer());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
+            app.UseXfo(options => options.Deny());
+            app.UseCsp(options => 
+                options.BlockAllMixedContent()
+                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com").UnsafeInline())
+                .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+                .FormActions(s => s.Self())
+                .FrameAncestors(s => s.Self())
+                .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:"))
+                .ScriptSources(s => s.Self())
+            );
+            app.UseHsts();
+
+            if (!env.IsDevelopment())
             {
                 app.UseHttpsRedirection();
             }
