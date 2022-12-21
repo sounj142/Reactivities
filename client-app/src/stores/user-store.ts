@@ -11,6 +11,7 @@ import { UserAbout } from '../models/UserProfile';
 const tokenKey = 'jwt';
 export default class UserStore {
   user?: UserDto = JSON.parse(localStorage.getItem(tokenKey)!) || undefined;
+  facebookAccessToken?: string;
   facebookLoading = false;
 
   constructor() {
@@ -31,15 +32,19 @@ export default class UserStore {
     this.facebookLoading = val;
   };
 
+  private setFacebookAccessToken = (val?: string) => {
+    this.facebookAccessToken = val;
+  };
+
   login = async (loginModel: LoginDto) => {
     const user = await accountApis.login(loginModel);
     this.setUser(user);
   };
 
   facebookLogin = (callback?: (user: UserDto) => void) => {
-    const callFacebookLoginApi = (accessToken: string) => {
+    const callFacebookLoginApi = () => {
       accountApis
-        .facebookLogin(accessToken)
+        .facebookLogin(this.facebookAccessToken!)
         .then((user) => {
           this.setUser(user);
           if (callback) callback(user);
@@ -50,22 +55,21 @@ export default class UserStore {
     };
 
     this.setFacebookLoading(true);
-    FB.getLoginStatus((res) => {
-      if (res.status === 'connected' && res.authResponse?.accessToken) {
-        callFacebookLoginApi(res.authResponse.accessToken);
-      } else {
-        FB.login(
-          (response: fb.StatusResponse) => {
-            if (response.authResponse?.accessToken) {
-              callFacebookLoginApi(response.authResponse.accessToken);
-            } else {
-              this.setFacebookLoading(false);
-            }
-          },
-          { scope: 'public_profile,email' }
-        );
-      }
-    });
+    if (this.facebookAccessToken) {
+      callFacebookLoginApi();
+    } else {
+      FB.login(
+        (response: fb.StatusResponse) => {
+          if (response.authResponse?.accessToken) {
+            this.setFacebookAccessToken(response.authResponse.accessToken);
+            callFacebookLoginApi();
+          } else {
+            this.setFacebookLoading(false);
+          }
+        },
+        { scope: 'public_profile,email' }
+      );
+    }
   };
 
   logOut = () => {

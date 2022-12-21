@@ -48,7 +48,7 @@ namespace API
                     "data:", 
                     "https://platform-lookaside.fbsbx.com"))
                 .ScriptSources(s => s.Self().CustomSources(
-                    "https://connect.facebook.net", 
+                    "https://connect.facebook.net",
                     "sha256-ZovcjcmxCp8sprlt10Itc5fgbC0ndFdKObAvwjHmNpk="))
             );
             app.UseHsts();

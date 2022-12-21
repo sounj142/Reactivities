@@ -79,7 +79,7 @@ public class DataContext : IdentityDbContext<AppUserDao>
                 .HasMaxLength(40);
             options.Property(t => t.Url)
                 .IsRequired()
-                .HasMaxLength(300);
+                .HasMaxLength(2000);
             options.HasOne(t => t.User)
                 .WithMany(t => t.Photos)
                 .HasForeignKey(t => t.UserId);
