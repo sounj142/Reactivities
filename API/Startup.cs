@@ -34,12 +34,22 @@ namespace API
             app.UseXfo(options => options.Deny());
             app.UseCsp(options => 
                 options.BlockAllMixedContent()
-                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com").UnsafeInline())
-                .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com")
+                    .UnsafeInline())
+                .FontSources(s => s.Self().CustomSources(
+                    "https://fonts.gstatic.com", 
+                    "data:"))
                 .FormActions(s => s.Self())
                 .FrameAncestors(s => s.Self())
-                .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:"))
-                .ScriptSources(s => s.Self())
+                .ImageSources(s => s.Self().CustomSources(
+                    "https://res.cloudinary.com", 
+                    "blob:", 
+                    "https://www.facebook.com", 
+                    "data:", 
+                    "https://platform-lookaside.fbsbx.com"))
+                .ScriptSources(s => s.Self().CustomSources(
+                    "https://connect.facebook.net", 
+                    "sha256-ZovcjcmxCp8sprlt10Itc5fgbC0ndFdKObAvwjHmNpk="))
             );
             app.UseHsts();
 

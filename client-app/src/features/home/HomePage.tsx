@@ -15,9 +15,10 @@ import { history } from '../../utils/route';
 
 export default observer(function HomePage() {
   const { userStore, modalStore } = useStore();
+  const { facebookLogin, facebookLoading } = userStore;
 
-  const facebookLogin = () => {
-    userStore.facebookLogin(() => {
+  const facebookLoginHandle = () => {
+    facebookLogin(() => {
       history.push('/activities');
     });
   };
@@ -55,6 +56,7 @@ export default observer(function HomePage() {
               inverted
               content='Login'
               type='button'
+              disabled={facebookLoading}
             />
             <Button
               onClick={() => modalStore.openModal(<RegisterForm />)}
@@ -62,18 +64,21 @@ export default observer(function HomePage() {
               inverted
               content='Register'
               type='button'
+              disabled={facebookLoading}
             />
             <Divider horizontal inverted>
               Or
             </Divider>
 
             <Button
-              onClick={facebookLogin}
+              onClick={facebookLoginHandle}
               size='huge'
               inverted
               color='facebook'
               content='Login with Facebook'
               type='button'
+              loading={facebookLoading}
+              disabled={facebookLoading}
             />
           </>
         )}
