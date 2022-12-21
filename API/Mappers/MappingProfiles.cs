@@ -10,7 +10,9 @@ public class MappingProfiles : Profile
     {
         CreateMap<AppUserDao, UserDto>()
             .ForMember(x => x.Image, x =>
-                x.MapFrom(q => q.Photos.FirstOrDefault(p => p.IsMain).Url));
+                x.MapFrom(q => q.Photos.FirstOrDefault(p => p.IsMain).Url))
+            .ForMember(x => x.isEmptyCredential, x =>
+                x.MapFrom(q => q.PasswordHash == null));
         CreateMap<PhotoDao, PhotoDto>();
         CreateMap<RegisterDto, AppUserDao>();
     }

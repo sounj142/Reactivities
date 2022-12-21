@@ -20,8 +20,8 @@ export default observer(function ProfileAbout({ profile }: Props) {
   const [formIsSubmitting, setFormIsSubmitting] = useState(false);
 
   const initialModel: UserAbout = {
-    displayName: profile.displayName,
-    bio: profile.bio,
+    displayName: profile.displayName || '',
+    bio: profile.bio || '',
   };
   const [serverResponse, setServerResponse] = useState<any>(undefined);
 

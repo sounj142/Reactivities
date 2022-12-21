@@ -31,6 +31,22 @@ export default class UserStore {
     this.setUser(user);
   };
 
+  facebookLogin = (callback?: (user: UserDto) => void) => {
+    FB.login(
+      (response: fb.StatusResponse) => {
+        if (response.authResponse?.accessToken) {
+          accountApis
+            .facebookLogin(response.authResponse.accessToken)
+            .then((user) => {
+              this.setUser(user);
+              if (callback) callback(user);
+            });
+        }
+      },
+      { scope: 'public_profile,email' }
+    );
+  };
+
   logOut = () => {
     this.setUser(undefined);
   };

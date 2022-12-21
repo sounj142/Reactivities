@@ -10,6 +10,7 @@ import { observer } from 'mobx-react-lite';
 
 export default observer(function ChangePasswordForm() {
   const { userStore, modalStore } = useStore();
+  const isEmptyCredential = userStore.user?.isEmptyCredential;
   const initialModel: ChangePasswordDto = {
     currentPassword: '',
     newPassword: '',
@@ -17,8 +18,7 @@ export default observer(function ChangePasswordForm() {
   };
   const [serverResponse, setServerResponse] = useState<any>(undefined);
 
-  const validationSchema = Yup.object({
-    currentPassword: Yup.string().required('Current password is required.'),
+  const validationConfig: any = {
     newPassword: Yup.string()
       .required('New password is required.')
       .min(6, 'New password must have at least 6 characters.')
@@ -37,7 +37,12 @@ export default observer(function ChangePasswordForm() {
         return this.parent.newPassword === value;
       }
     ),
-  });
+  };
+  if (!isEmptyCredential)
+    validationConfig.currentPassword = Yup.string().required(
+      'Current password is required.'
+    );
+  const validationSchema = Yup.object(validationConfig);
 
   const formSubmitHandle = async (model: ChangePasswordDto) => {
     setServerResponse(undefined);
@@ -63,12 +68,14 @@ export default observer(function ChangePasswordForm() {
             color='teal'
             textAlign='center'
           />
+          {!isEmptyCredential && (
+            <MyTextInput
+              placeholder='Current password'
+              name='currentPassword'
+              type='password'
+            />
+          )}
 
-          <MyTextInput
-            placeholder='Current password'
-            name='currentPassword'
-            type='password'
-          />
           <MyTextInput
             placeholder='New password'
             name='newPassword'

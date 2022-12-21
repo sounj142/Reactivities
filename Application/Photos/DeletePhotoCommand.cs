@@ -45,9 +45,10 @@ public class DeletePhotoCommandHandler : IRequestHandler<DeletePhotoCommand>
 
         _logger.LogInformation("User '{@UserId}', deleting photo '{@Id}'", userId, request.Id);
 
-        await _profileRepository.DeletePhoto(request.Id);
+        await _profileRepository.DeletePhoto(photo.Id);
 
-        await _photoAccessor.DeletePhoto(request.Id);
+        if (!photo.Id.StartsWith("fb_"))
+            await _photoAccessor.DeletePhoto(photo.Id);
 
         return Unit.Value;
     }

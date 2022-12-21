@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Utils;
 
@@ -12,6 +13,12 @@ public class ErrorResponse
     {
         TraceId = traceId;
         Errors = errors;
+    }
+
+    public static ErrorResponse Create(HttpContext context, IdentityResult result)
+    {
+        var errors = result.Errors.ToDictionary(x => x.Code, x => new string[] { x.Description });
+        return Create(context, errors);
     }
 
     public static ErrorResponse Create(HttpContext context, IDictionary<string, string[]> errors)

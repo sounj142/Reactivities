@@ -59,6 +59,8 @@ public static class DependencyInjection
 
         services.AddSignalR();
 
+        services.AddHttpClient();
+
         ConfigIdentity(services, configuration);
 
         return services;

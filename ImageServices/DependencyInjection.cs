@@ -11,10 +11,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddSingleton<CloudinarySettings>((serviceProvider) =>
-        {
-            var settings = configuration.GetSection("Cloudinary").Get<CloudinarySettings>();
-            return settings;
-        });
+            configuration.GetSection("Cloudinary").Get<CloudinarySettings>());
         services.AddScoped<IPhotoAccessor, PhotoAccessor>();
 
         return services;

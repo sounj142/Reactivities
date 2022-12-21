@@ -15,7 +15,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": ["node_modules/yup"]
+    "typeRoots": ["node_modules/yup"],
+    "types": ["facebook-js-sdk"]
   },
   "include": ["src"]
 }

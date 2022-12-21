@@ -1,12 +1,27 @@
-import { Button, Container, Header, Image, Segment } from 'semantic-ui-react';
+import {
+  Button,
+  Container,
+  Divider,
+  Header,
+  Image,
+  Segment,
+} from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../stores/store';
 import LoginForm from '../users/LoginForm';
 import RegisterForm from '../users/RegisterForm';
+import { history } from '../../utils/route';
 
 export default observer(function HomePage() {
   const { userStore, modalStore } = useStore();
+
+  const facebookLogin = () => {
+    userStore.facebookLogin(() => {
+      history.push('/activities');
+    });
+  };
+
   return (
     <Segment inverted textAlign='center' vertical className='masthead'>
       <Container text>
@@ -46,6 +61,18 @@ export default observer(function HomePage() {
               size='huge'
               inverted
               content='Register'
+              type='button'
+            />
+            <Divider horizontal inverted>
+              Or
+            </Divider>
+
+            <Button
+              onClick={facebookLogin}
+              size='huge'
+              inverted
+              color='facebook'
+              content='Login with Facebook'
               type='button'
             />
           </>

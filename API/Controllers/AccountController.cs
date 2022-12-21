@@ -3,6 +3,7 @@ using API.Identity.Dtos;
 using API.Utils;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Exceptions;
 using Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,19 +20,25 @@ public class AccountController : BaseApiController
     private readonly IMapper _mapper;
     private readonly TokenService _tokenService;
     private readonly ICurrentUserContext _currentUserContext;
+    private readonly IConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public AccountController(
         UserManager<AppUserDao> userManager,
         SignInManager<AppUserDao> signInManager,
         IMapper mapper,
         TokenService tokenService,
-        ICurrentUserContext currentUserContext)
+        ICurrentUserContext currentUserContext,
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory)
     {
+        _userManager = userManager;
         _signInManager = signInManager;
         _mapper = mapper;
         _tokenService = tokenService;
         _currentUserContext = currentUserContext;
-        _userManager = userManager;
+        _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
     }
 
     private async Task<UserDto> GenerateUserDto(string userId)
@@ -73,12 +80,51 @@ public class AccountController : BaseApiController
 
         if (!registerResult.Succeeded)
         {
-            var errors = registerResult.Errors.ToDictionary(x => x.Code, x => new string[] { x.Description });
-            var errorResponse = ErrorResponse.Create(HttpContext, errors);
+            var errorResponse = ErrorResponse.Create(HttpContext, registerResult);
             return BadRequest(errorResponse);
         }
 
         return await GenerateUserDto(user.Id);
+    }
+
+    [HttpPost("facebook-login")]
+    [AllowAnonymous]
+    public async Task<ActionResult<UserDto>> FacebookLogin(string accessToken)
+    {
+        var fbAccount = await CallFacebookApi(accessToken);
+
+        var user = await _userManager.FindByEmailAsync(fbAccount.Email);
+        if (user != null)
+            return await GenerateUserDto(user.Id);
+
+        var userByUserName = await _userManager.FindByNameAsync(fbAccount.Id);
+        if (userByUserName != null)
+            fbAccount.Id += $"{fbAccount.Id}_{Guid.NewGuid().ToString().Replace("-", string.Empty)}";
+
+        var newUser = new AppUserDao
+        {
+            Email = fbAccount.Email,
+            UserName = fbAccount.Id,
+            DisplayName = fbAccount.Name,
+        };
+        if (!string.IsNullOrEmpty(fbAccount.Picture?.Data?.Url))
+        {
+            newUser.Photos = new List<PhotoDao> {
+                new PhotoDao {
+                    Id = $"fb_{Guid.NewGuid().ToString().Replace("-", string.Empty)}",
+                    IsMain = true,
+                    Url = fbAccount.Picture.Data.Url
+                }
+            };
+        }
+        var registerResult = await _userManager.CreateAsync(newUser);
+        if (!registerResult.Succeeded)
+        {
+            var errorResponse = ErrorResponse.Create(HttpContext, registerResult);
+            return BadRequest(errorResponse);
+        }
+
+        return await GenerateUserDto(newUser.Id);
     }
 
     [HttpPut("change-password")]
@@ -89,11 +135,47 @@ public class AccountController : BaseApiController
         if (user == null)
             return BadRequest("User not found.");
 
-        var result = await _userManager.ChangePasswordAsync(
-            user, model.CurrentPassword, model.NewPassword);
+        IdentityResult result;
+        if (string.IsNullOrEmpty(model.CurrentPassword))
+        {
+            if (user.PasswordHash != null)
+                return BadRequest("Incorrect password.");
+            result = await _userManager.AddPasswordAsync(user, model.NewPassword);
+        }
+        else
+        {
+            result = await _userManager.ChangePasswordAsync(
+                user, model.CurrentPassword, model.NewPassword);
+        }
         if (!result.Succeeded)
             return BadRequest(result.Errors.FirstOrDefault()?.Description);
 
         return await GenerateUserDto(user.Id);
+    }
+
+    const string FB_BASEURL = "https://graph.facebook.com/";
+    private async Task<FacebookAccountDto> CallFacebookApi(string accessToken)
+    {
+        using var client = _httpClientFactory.CreateClient();
+        var verifyUrl = $"{FB_BASEURL}debug_token".BuildUri(new
+        {
+            input_token = accessToken,
+            access_token = $"{_configuration["Facebook:AppId"]}|{_configuration["Facebook:AppSecret"]}"
+        });
+        var verifyToken = await client.GetAsync(verifyUrl);
+        if (!verifyToken.IsSuccessStatusCode)
+            throw new FrameworkException(ErrorCode.API0001, "User cancelled login or did not fully authorize.");
+
+        var facebookUrl = $"{FB_BASEURL}me".BuildUri(new
+        {
+            access_token = accessToken,
+            fields = "name,email,picture.width(100).height(100)"
+        });
+        var response = await client.GetAsync(facebookUrl);
+        if (!response.IsSuccessStatusCode)
+            throw new FrameworkException(ErrorCode.API0002, "User cancelled login or did not fully authorize.");
+
+        var content = await response.Content.ReadFromJsonAsync<FacebookAccountDto>();
+        return content;
     }
 }

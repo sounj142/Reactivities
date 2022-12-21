@@ -23,6 +23,10 @@ const accountApis = {
       model,
       ignoreStatusCodes()
     ),
+  facebookLogin: (accessToken: string) =>
+    requests.post<undefined, UserDto>(`${basePath}/facebook-login`, undefined, {
+      params: { accessToken },
+    }),
 };
 
 export default accountApis;
