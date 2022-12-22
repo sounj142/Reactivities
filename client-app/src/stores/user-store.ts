@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import { makeAutoObservable } from 'mobx';
+import { toast } from 'react-toastify';
 import accountApis from '../api/account-api';
 import {
   ChangePasswordDto,
@@ -59,19 +60,16 @@ export default class UserStore {
   };
 
   readUserFromLocalStorage = (val?: string | null | undefined) => {
-    console.log('-----read user from localStorage');
     if (val === undefined) {
       val = localStorage.getItem(TOKEN_KEY);
     }
     this.user = JSON.parse(val!) || undefined;
+    if (!this.user) {
+      if (window.location.pathname !== '/') history.push('/');
+    }
   };
 
   private setUser = (user?: UserDto, hasTokenChange: boolean = true) => {
-    console.log(
-      user
-        ? '-----set user to localStorage'
-        : 'set user to localStorage: ve undefine!'
-    );
     const oldUser = this.user;
     this.user = user;
     if (this.user) {
@@ -173,6 +171,7 @@ export default class UserStore {
     const refreshTokenExp = getExpiredTime(this.user.refreshToken);
     const now = Date.now();
     if (refreshTokenExp!.getTime() - now <= 2 * 1000) {
+      toast.error('Session expired - please login again.');
       return this.clearStorageAndRedirectToHomePage();
     }
 
@@ -194,8 +193,6 @@ export default class UserStore {
   };
 
   private scheduleToRefreshToken = () => {
-    console.log('======== scheduleToRefreshToken');
-
     this.clearRefreshSchedulerTimer();
     const tokenExp = getExpiredTime(this.user?.token);
     if (!tokenExp) return;
@@ -210,11 +207,9 @@ export default class UserStore {
   };
 
   private refreshToken = async (trackUserLoading: boolean) => {
-    console.log('--- try to refresh token');
     if (trackUserLoading) this.setUserLoading(true);
     try {
       const user = await accountApis.refreshToken(this.user?.refreshToken!);
-      console.log('--- refresh token succeed');
       this.setUser(user);
     } catch (err) {
       if ((err as AxiosError)?.response?.status === 400)
