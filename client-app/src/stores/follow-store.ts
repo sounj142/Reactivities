@@ -38,15 +38,8 @@ export default class FollowStore {
         userName,
         isFollow
       );
-      store.activityStore.fixActivityStoreAfterChangeFollowing(
-        observer,
-        target
-      );
-      store.profileStore.fixProfileStoreAfterChangeFollowing(
-        observer,
-        target,
-        isFollow
-      );
+      store.activityStore.broadcastFollowingChanged(observer, target);
+      store.profileStore.broadcastFollowingChanged(observer, target, isFollow);
     } finally {
       this.setFollowerLoading(undefined);
     }

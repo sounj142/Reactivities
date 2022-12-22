@@ -227,13 +227,13 @@ export default class UserStore {
 
   updateMainPhoto = (image: string) => {
     if (!this.user) return;
-    const user = { ...this.user, image: image };
-    this.setUser(user, false);
+    this.user.image = image;
+    this.setUser(this.user, false);
   };
 
   updateProfileAbout(data: UserAbout) {
     if (!this.user) return;
-    const user = { ...this.user, displayName: data.displayName };
-    this.setUser(user, false);
+    this.user.displayName = data.displayName;
+    this.setUser(this.user, false);
   }
 }

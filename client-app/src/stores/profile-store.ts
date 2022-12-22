@@ -138,7 +138,7 @@ export default class ProfileStore {
     });
   };
 
-  fixProfileStoreAfterChangeFollowing = (
+  broadcastFollowingChanged = (
     observer: UserFollowing,
     target: UserFollowing,
     isFollow: boolean

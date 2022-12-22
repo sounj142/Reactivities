@@ -304,7 +304,7 @@ export default class ActivityStore {
     );
   };
 
-  fixActivityStoreAfterChangeFollowing = (
+  broadcastFollowingChanged = (
     observer: UserFollowing,
     target: UserFollowing
   ) => {
