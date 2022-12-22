@@ -28,31 +28,7 @@ namespace API
         {
             app.UseCustomExceptionHandler();
 
-            app.UseXContentTypeOptions();
-            app.UseReferrerPolicy(options => options.NoReferrer());
-            app.UseXXssProtection(options => options.EnabledWithBlockMode());
-            app.UseXfo(options => options.Deny());
-            app.UseCsp(options => 
-                options.BlockAllMixedContent()
-                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com")
-                    .UnsafeInline())
-                .FontSources(s => s.Self().CustomSources(
-                    "https://fonts.gstatic.com", 
-                    "data:"))
-                .FormActions(s => s.Self())
-                .FrameAncestors(s => s.Self())
-                .ImageSources(s => s.Self().CustomSources(
-                    "https://res.cloudinary.com", 
-                    "blob:", 
-                    "https://www.facebook.com", 
-                    "data:",
-                    "*.fbcdn.net",
-                    "https://platform-lookaside.fbsbx.com"))
-                .ScriptSources(s => s.Self().CustomSources(
-                    "https://connect.facebook.net",
-                    "sha256-ZovcjcmxCp8sprlt10Itc5fgbC0ndFdKObAvwjHmNpk="))
-            );
-            app.UseHsts();
+            ConfigureResponseHeaders(app);
 
             if (!env.IsDevelopment())
             {
@@ -79,6 +55,35 @@ namespace API
                     .RequireAuthorization();
                 endpoints.MapFallbackToFile("index.html");
             });
+        }
+
+        private void ConfigureResponseHeaders(IApplicationBuilder app)
+        {
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(options => options.NoReferrer());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
+            app.UseXfo(options => options.Deny());
+            app.UseCsp(options =>
+                options.BlockAllMixedContent()
+                .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com")
+                    .UnsafeInline())
+                .FontSources(s => s.Self().CustomSources(
+                    "https://fonts.gstatic.com",
+                    "data:"))
+                .FormActions(s => s.Self())
+                .FrameAncestors(s => s.Self())
+                .ImageSources(s => s.Self().CustomSources(
+                    "https://res.cloudinary.com",
+                    "blob:",
+                    "https://www.facebook.com",
+                    "data:",
+                    "*.fbcdn.net",
+                    "https://platform-lookaside.fbsbx.com"))
+                .ScriptSources(s => s.Self().CustomSources(
+                    "https://connect.facebook.net",
+                    "sha256-ZovcjcmxCp8sprlt10Itc5fgbC0ndFdKObAvwjHmNpk="))
+            );
+            app.UseHsts();
         }
     }
 }
