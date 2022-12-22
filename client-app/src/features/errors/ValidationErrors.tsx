@@ -7,23 +7,26 @@ export default function ValidationErrors({ serverResponse }: Props) {
   if (typeof serverResponse === 'string')
     return (
       <Message error className='error-messages'>
-        <Message.Item>{serverResponse}</Message.Item>
+        {serverResponse}
       </Message>
     );
+
   if (serverResponse?.errors) {
+    const errors = [].concat.apply([], Object.values(serverResponse.errors));
     return (
       <Message error className='error-messages'>
-        {Object.values(serverResponse.errors).map((errs: any) => {
-          return errs.map((err: string) => (
-            <Message.Item key={err}>{err}</Message.Item>
-          ));
-        })}
+        {errors.length < 2
+          ? errors[0]
+          : errors.map((err: string, index: number) => (
+              <Message.Item key={index}>{err}</Message.Item>
+            ))}
       </Message>
     );
   }
+
   return (
     <Message error className='error-messages'>
-      <Message.Item>Unknown Error.</Message.Item>
+      Unknown Error.
     </Message>
   );
-};
+}

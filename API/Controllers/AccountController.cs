@@ -23,6 +23,7 @@ public class AccountController : BaseApiController
     private readonly ICurrentUserContext _currentUserContext;
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IEmailSender _emailSender;
 
     public AccountController(
         UserManager<AppUserDao> userManager,
@@ -31,7 +32,8 @@ public class AccountController : BaseApiController
         TokenService tokenService,
         ICurrentUserContext currentUserContext,
         IConfiguration configuration,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IEmailSender emailSender)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -40,6 +42,7 @@ public class AccountController : BaseApiController
         _currentUserContext = currentUserContext;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
+        _emailSender = emailSender;
     }
 
     private Task<UserDto> GetUserDtoById(string userId)
@@ -62,14 +65,18 @@ public class AccountController : BaseApiController
         return userDto;
     }
 
-    [HttpPost("login")]
     [AllowAnonymous]
+    [HttpPost("login")]
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
         const string invalidMessage = "Email or password is incorrect.";
         var user = await _userManager.FindByEmailAsync(loginDto.Email);
         if (user == null)
             return BadRequest(invalidMessage);
+
+        if (!await _userManager.IsEmailConfirmedAsync(user))
+            throw new FrameworkException(ErrorCode.EMAIL_NOT_CONFIRMED,
+            "Your email has to be confirmed before login, please check your email.");
 
         var loginResult = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
         if (!loginResult.Succeeded)
@@ -78,9 +85,67 @@ public class AccountController : BaseApiController
         return await GenerateUserDto(user.Id);
     }
 
-    [HttpPost("register")]
+    private async Task SendConfirmationEmail(AppUserDao user)
+    {
+        if (user == null) return;
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        var subject = "Reactivities: Confirmation Email";
+        var link = _configuration["Identity:VerifyEmailMode"] == "ClientSide"
+            ? $"{_configuration["ClientHost"] + "/" ?? HttpContext.Request.BaseUrl()}account/verify-email"
+            : $"{HttpContext.Request.BaseUrl()}api/account/verify-email";
+        link = link.AddQueryString(new { token = token, email = user.Email });
+
+        var body = @$"<p>Please click the bellow link to verify your email address:</p>
+            <p><a href='{link}'>Verify your email</a></p>";
+
+        await _emailSender.SendEmail(user.Email, subject, body);
+    }
+
     [AllowAnonymous]
-    public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+    [HttpPost("send-confirmation-email")]
+    public async Task<ActionResult<UserDto>> SendConfirmationEmail(SendConfirmationEmailDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        await SendConfirmationEmail(user);
+        return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("verify-email")]
+    public async Task<ActionResult> VerifyEmail(string token, string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+            return BadRequest("User not found.");
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        if (!result.Succeeded)
+            return BadRequest("Invalid token.");
+
+        var redirectLink = _configuration["ClientHost"] ?? "";
+        redirectLink = $"{redirectLink}/account/email-confirmed";
+        return Redirect(redirectLink);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("verify-email")]
+    public async Task<ActionResult> VerifyEmailPost(VerifyEmailPostDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return BadRequest("User not found.");
+
+        var result = await _userManager.ConfirmEmailAsync(user, model.Token);
+        if (!result.Succeeded)
+            return BadRequest("Invalid token.");
+
+        return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("register")]
+    public async Task<ActionResult> Register(RegisterDto registerDto)
     {
         if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
             return BadRequest("Email already in use.");
@@ -96,18 +161,26 @@ public class AccountController : BaseApiController
             return BadRequest(errorResponse);
         }
 
-        return await GenerateUserDto(user.Id);
+        await SendConfirmationEmail(user);
+        return Ok();
     }
 
-    [HttpPost("facebook-login")]
     [AllowAnonymous]
+    [HttpPost("facebook-login")]
     public async Task<ActionResult<UserDto>> FacebookLogin(string accessToken)
     {
         var fbAccount = await CallFacebookApi(accessToken);
 
         var user = await _userManager.FindByEmailAsync(fbAccount.Email);
         if (user != null)
+        {
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+            }
             return await GenerateUserDto(user.Id);
+        }
 
         var userByUserName = await _userManager.FindByNameAsync(fbAccount.Id);
         if (userByUserName != null)
@@ -118,6 +191,7 @@ public class AccountController : BaseApiController
             Email = fbAccount.Email,
             UserName = fbAccount.Id,
             DisplayName = fbAccount.Name,
+            EmailConfirmed = true
         };
         if (!string.IsNullOrEmpty(fbAccount.Picture?.Data?.Url))
         {
@@ -139,8 +213,8 @@ public class AccountController : BaseApiController
         return await GenerateUserDto(newUser.Id);
     }
 
-    [HttpPost("refresh-token")]
     [AllowAnonymous]
+    [HttpPost("refresh-token")]
     public async Task<ActionResult<UserDto>> RefreshToken(RefreshTokenDto model)
     {
         var tokenClaims = _tokenService.ValidateToken(model.RefreshToken, true);
@@ -192,7 +266,7 @@ public class AccountController : BaseApiController
     private async Task<FacebookAccountDto> CallFacebookApi(string accessToken)
     {
         using var client = _httpClientFactory.CreateClient();
-        var verifyUrl = $"{FB_BASEURL}debug_token".BuildUri(new
+        var verifyUrl = $"{FB_BASEURL}debug_token".AddQueryString(new
         {
             input_token = accessToken,
             access_token = $"{_configuration["Facebook:AppId"]}|{_configuration["Facebook:AppSecret"]}"
@@ -201,7 +275,7 @@ public class AccountController : BaseApiController
         if (!verifyToken.IsSuccessStatusCode)
             throw new FrameworkException(ErrorCode.API0001, "User cancelled login or did not fully authorize.");
 
-        var facebookUrl = $"{FB_BASEURL}me".BuildUri(new
+        var facebookUrl = $"{FB_BASEURL}me".AddQueryString(new
         {
             access_token = accessToken,
             fields = "name,email,picture.width(100).height(100)"

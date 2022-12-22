@@ -26,42 +26,49 @@ export default observer(function NavBar() {
           Reactivities
         </Menu.Item>
 
-        <Menu.Item as={NavLink} to='/activities' name='Activities' exact />
-
-        <Menu.Item as={NavLink} to='/test-errors' name='Test Errors' exact />
-
-        <Menu.Item as={NavLink} to='/activities/create' exact>
-          <Button positive content='Create Activity' />
-        </Menu.Item>
-
         {user && (
-          <Menu.Item position='right'>
-            <Image
-              src={user.image || '/assets/user.png'}
-              avatar
-              spaced='right'
+          <>
+            <Menu.Item as={NavLink} to='/activities' name='Activities' exact />
+
+            <Menu.Item
+              as={NavLink}
+              to='/test-errors'
+              name='Test Errors'
+              exact
             />
-            <Dropdown pointing='top left' text={user.displayName}>
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  as={Link}
-                  to={`/profiles/${user.userName}`}
-                  text='My Profile'
-                  icon='user'
-                />
-                <Dropdown.Item
-                  onClick={() => modalStore.openModal(<ChangePasswordForm />)}
-                  text='Change Password'
-                  icon='lock'
-                />
-                <Dropdown.Item
-                  onClick={handleLogout}
-                  text='Log out'
-                  icon='power'
-                />
-              </Dropdown.Menu>
-            </Dropdown>
-          </Menu.Item>
+
+            <Menu.Item as={NavLink} to='/activities/create' exact>
+              <Button positive content='Create Activity' />
+            </Menu.Item>
+
+            <Menu.Item position='right'>
+              <Image
+                src={user.image || '/assets/user.png'}
+                avatar
+                spaced='right'
+              />
+              <Dropdown pointing='top left' text={user.displayName}>
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    as={Link}
+                    to={`/profiles/${user.userName}`}
+                    text='My Profile'
+                    icon='user'
+                  />
+                  <Dropdown.Item
+                    onClick={() => modalStore.openModal(<ChangePasswordForm />)}
+                    text='Change Password'
+                    icon='lock'
+                  />
+                  <Dropdown.Item
+                    onClick={handleLogout}
+                    text='Log out'
+                    icon='power'
+                  />
+                </Dropdown.Menu>
+              </Dropdown>
+            </Menu.Item>
+          </>
         )}
       </Container>
     </Menu>

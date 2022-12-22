@@ -7,6 +7,7 @@ import {
   LoginDto,
   RegisterDto,
   UserDto,
+  VerifyEmailDto,
 } from '../models/User';
 import { UserAbout } from '../models/UserProfile';
 import { history } from '../utils/route';
@@ -15,6 +16,12 @@ import { store } from './store';
 const TOKEN_KEY = 'access_token';
 const REFESH_LAST_TIME_KEY = 'last_refresh_at';
 const TIME_REFRESH_TOKEN = 30; // seconds
+const homepageUrls = [
+  '/',
+  '/account/email-confirmed',
+  '/account/register-success',
+  '/account/verify-email',
+];
 
 window.addEventListener('storage', (e) => {
   if (e.key === TOKEN_KEY && e.newValue !== e.oldValue) {
@@ -54,9 +61,13 @@ export default class UserStore {
     return !!this.user?.token;
   }
 
+  private checkUrlAndRedirecToHomePage = () => {
+    if (!homepageUrls.includes(window.location.pathname)) history.push('/');
+  };
+
   private clearStorageAndRedirectToHomePage = () => {
     this.setUser(undefined);
-    if (window.location.pathname !== '/') history.push('/');
+    this.checkUrlAndRedirecToHomePage();
   };
 
   readUserFromLocalStorage = (val?: string | null | undefined) => {
@@ -65,7 +76,7 @@ export default class UserStore {
     }
     this.user = JSON.parse(val!) || undefined;
     if (!this.user) {
-      if (window.location.pathname !== '/') history.push('/');
+      this.checkUrlAndRedirecToHomePage();
     }
   };
 
@@ -112,6 +123,14 @@ export default class UserStore {
     this.setUser(user);
   };
 
+  resendConfirmationEmail = (email: string) => {
+    return accountApis.resendConfirmationEmail(email);
+  };
+
+  verifyEmail = (model: VerifyEmailDto) => {
+    return accountApis.verifyEmail(model);
+  };
+
   facebookLogin = (callback?: (user: UserDto) => void) => {
     const callFacebookLoginApi = () => {
       accountApis
@@ -147,9 +166,8 @@ export default class UserStore {
     this.setUser(undefined);
   };
 
-  register = async (registerModel: RegisterDto) => {
-    const user = await accountApis.register(registerModel);
-    this.setUser(user);
+  register = (registerModel: RegisterDto) => {
+    return accountApis.register(registerModel);
   };
 
   changePassword = async (model: ChangePasswordDto) => {

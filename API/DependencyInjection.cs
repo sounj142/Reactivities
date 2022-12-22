@@ -76,8 +76,11 @@ public static class DependencyInjection
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
+
+                options.SignIn.RequireConfirmedEmail = true;
             })
             .AddEntityFrameworkStores<DataContext>()
+            .AddDefaultTokenProviders()
             .AddSignInManager<SignInManager<AppUserDao>>();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

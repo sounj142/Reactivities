@@ -12,10 +12,24 @@ import { useStore } from '../../stores/store';
 import LoginForm from '../users/LoginForm';
 import RegisterForm from '../users/RegisterForm';
 import { history } from '../../utils/route';
+import { toast } from 'react-toastify';
 
-export default observer(function HomePage() {
+let showedLoginPopup = false;
+
+interface Props {
+  isEmailConfirmed?: boolean;
+}
+export default observer(function HomePage({ isEmailConfirmed }: Props) {
   const { userStore, modalStore } = useStore();
   const { facebookLogin, facebookLoading } = userStore;
+
+  if (isEmailConfirmed && !showedLoginPopup) {
+    window.setTimeout(() => {
+      toast.success('Your account has been activated. Please login...');
+      modalStore.openModal(<LoginForm />);
+    });
+    showedLoginPopup = true;
+  }
 
   const facebookLoginHandle = () => {
     facebookLogin(() => {

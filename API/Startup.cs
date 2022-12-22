@@ -3,6 +3,7 @@ using Application;
 using API.Utils;
 using ImageServices;
 using API.SignalR;
+using EmailServices;
 
 namespace API
 {
@@ -21,6 +22,7 @@ namespace API
             services.AddApplicationServices();
             services.AddApiServices(_configuration);
             services.AddImageServices(_configuration);
+            services.AddEmailServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

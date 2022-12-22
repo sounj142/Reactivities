@@ -49,7 +49,7 @@ export default observer(function RegisterForm() {
     try {
       await userStore.register(registerModel);
       modalStore.closeModal();
-      history.push('/activities');
+      history.push(`/account/register-success?email=${registerModel.email}`);
     } catch (err: any) {
       setServerResponse(err.response?.data);
     }

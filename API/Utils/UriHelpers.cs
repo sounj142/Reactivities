@@ -5,10 +5,10 @@ namespace API.Utils;
 
 public static class UriHelpers
 {
-    public static string BuildUri(this string url, object queries)
+    public static string AddQueryString(this string url, object queries)
     {
         var builder = new UriBuilder(url);
-        builder.Port = -1;
+        if (builder.Uri.IsDefaultPort) builder.Port = -1;
         var query = HttpUtility.ParseQueryString(builder.Query);
 
         foreach (var prop in queries.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))

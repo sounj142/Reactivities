@@ -1,4 +1,9 @@
-import { ChangePasswordDto, LoginDto, RegisterDto } from '../models/User';
+import {
+  ChangePasswordDto,
+  LoginDto,
+  RegisterDto,
+  VerifyEmailDto,
+} from '../models/User';
 import { UserDto } from '../models/User';
 import { ignoreStatusCodes } from '../utils/axios';
 import { requests } from './agent';
@@ -11,8 +16,20 @@ const accountApis = {
       loginModel,
       ignoreStatusCodes()
     ),
+  resendConfirmationEmail: (email: string) =>
+    requests.post<{ email: string }, void>(
+      `${basePath}/send-confirmation-email`,
+      { email },
+      ignoreStatusCodes()
+    ),
+  verifyEmail: (model: VerifyEmailDto) =>
+    requests.post<VerifyEmailDto, void>(
+      `${basePath}/verify-email`,
+      model,
+      ignoreStatusCodes()
+    ),
   register: (registerModel: RegisterDto) =>
-    requests.post<RegisterDto, UserDto>(
+    requests.post<RegisterDto, void>(
       `${basePath}/register`,
       registerModel,
       ignoreStatusCodes()

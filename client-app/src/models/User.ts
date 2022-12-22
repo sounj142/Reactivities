@@ -26,3 +26,8 @@ export interface UserDto {
   token: string;
   refreshToken: string;
 }
+
+export interface VerifyEmailDto {
+  token: string;
+  email: string;
+}
