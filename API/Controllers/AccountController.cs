@@ -92,7 +92,7 @@ public class AccountController : BaseApiController
 
         var subject = "Reactivities: Confirmation Email";
         var link = _configuration["Identity:VerifyEmailMode"] == "ClientSide"
-            ? $"{_configuration["ClientHost"] + "/" ?? HttpContext.Request.BaseUrl()}account/verify-email"
+            ? $"{(_configuration["ClientHost"] ?? HttpContext.Request.BaseUrl()).TrimEnd('/')}/account/verify-email"
             : $"{HttpContext.Request.BaseUrl()}api/account/verify-email";
         link = link.AddQueryString(new { token = token, email = user.Email });
 
