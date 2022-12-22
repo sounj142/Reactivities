@@ -286,7 +286,7 @@ export default class ActivityStore {
     activity.attendees.forEach((attendee) => {
       if (attendee.userName === userName) {
         attendee.displayName = data.displayName;
-        attendee.bio = data.bio;
+        if (data.bio !== undefined) attendee.bio = data.bio;
       }
     });
   };

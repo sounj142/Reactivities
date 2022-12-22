@@ -13,9 +13,14 @@ import ServerSideError from '../../features/errors/ServerSideError';
 import ModalContainer from '../modals/ModalContainer';
 import ProfilePage from '../../features/profiles/ProfilePage';
 import PrivateRoute from './PrivateRoute';
+import { useStore } from '../../stores/store';
+import Loading from './Loading';
 
 export default observer(function App() {
+  const { userStore } = useStore();
   const location = useLocation();
+
+  if (userStore.userLoading) return <Loading content='Loading app...' />;
   return (
     <>
       <ToastContainer position='bottom-right' hideProgressBar />

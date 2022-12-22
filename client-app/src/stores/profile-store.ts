@@ -59,9 +59,13 @@ export default class ProfileStore {
     return profile.userName === store.userStore.user?.userName;
   };
 
-  private changeMainPhotoOfProfile = (photo: Photo) => {
+  updateProfileMainPhoto = (url: string) => {
     if (!this.profile) return;
-    this.profile.image = photo.url;
+    this.profile.image = url;
+  };
+
+  private changeMainPhotoOfProfile = (photo: Photo) => {
+    this.updateProfileMainPhoto(photo.url);
     store.userStore.updateMainPhoto(photo.url);
     store.activityStore.updateActivitiesMainPhoto();
   };
@@ -119,11 +123,15 @@ export default class ProfileStore {
     }
   };
 
+  setDisplayName = (val: string) => {
+    if (this.profile) this.profile.displayName = val;
+  };
+
   updateProfileAbout = async (data: UserAbout) => {
     await profileApis.updateProfileAbout(data);
     runInAction(() => {
       if (!this.profile) return;
-      this.profile.displayName = data.displayName;
+      this.setDisplayName(data.displayName);
       this.profile.bio = data.bio;
       store.userStore.updateProfileAbout(data);
       store.activityStore.updateProfileAbout(data);

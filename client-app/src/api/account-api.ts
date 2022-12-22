@@ -27,6 +27,12 @@ const accountApis = {
     requests.post<undefined, UserDto>(`${basePath}/facebook-login`, undefined, {
       params: { accessToken },
     }),
+  refreshToken: (refreshToken: string) =>
+    requests.post<{ refreshToken: string }, UserDto>(
+      `${basePath}/refresh-token`,
+      { refreshToken },
+      ignoreStatusCodes()
+    ),
 };
 
 export default accountApis;

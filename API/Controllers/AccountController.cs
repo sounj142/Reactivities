@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.Identity;
 using API.Identity.Dtos;
 using API.Utils;
@@ -41,12 +42,23 @@ public class AccountController : BaseApiController
         _httpClientFactory = httpClientFactory;
     }
 
-    private async Task<UserDto> GenerateUserDto(string userId)
+    private Task<UserDto> GetUserDtoById(string userId)
     {
-        var userDto = await _userManager.Users.AsNoTracking()
+        return _userManager.Users.AsNoTracking()
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(x => x.Id == userId);
+    }
+
+    private async Task<UserDto> GenerateUserDto(string userId)
+    {
+        var userDto = await GetUserDtoById(userId);
+        return GenerateUserDto(userDto);
+    }
+
+    private UserDto GenerateUserDto(UserDto userDto)
+    {
         userDto.Token = _tokenService.CreateToken(userDto);
+        userDto.RefreshToken = _tokenService.CreateRefreshToken(userDto);
         return userDto;
     }
 
@@ -125,6 +137,29 @@ public class AccountController : BaseApiController
         }
 
         return await GenerateUserDto(newUser.Id);
+    }
+
+    [HttpPost("refresh-token")]
+    [AllowAnonymous]
+    public async Task<ActionResult<UserDto>> RefreshToken(RefreshTokenDto model)
+    {
+        var tokenClaims = _tokenService.ValidateToken(model.RefreshToken, true);
+        if (tokenClaims == null)
+            return BadRequest("Token unvalid or expired.");
+
+        var userId = tokenClaims.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Bad token.");
+
+        var userDto = await GetUserDtoById(userId);
+        if (userDto == null)
+            return BadRequest("User not found.");
+
+        var securityStamp = tokenClaims.Claims.FirstOrDefault(x => x.Type == "SecurityStamp")?.Value;
+        if (userDto.SecurityStamp != securityStamp)
+            return BadRequest("User credentials have changed.");
+
+        return GenerateUserDto(userDto);
     }
 
     [HttpPut("change-password")]

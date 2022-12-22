@@ -104,6 +104,8 @@ axios.interceptors.request.use(async (request) => {
 axios.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
+    if (!error.response) return Promise.reject(error);
+
     const { data, status, config } = error.response as AxiosResponse;
     const ignoreStatusCodes: number[] | undefined = (config as any)
       .ignoreStatusCodes;

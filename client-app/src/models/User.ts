@@ -22,6 +22,7 @@ export interface UserDto {
   userName: string;
   displayName: string;
   image?: string;
-  token: string;
   isEmptyCredential: boolean;
+  token: string;
+  refreshToken: string;
 }
